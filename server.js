@@ -19,7 +19,13 @@ const PORT = process.env.PORT || 5000;
 
 // 3. Middleware setup
 // Enable CORS for all routes, allowing the frontend to make requests
-app.use(cors());
+//app.use(cors());
+const corsOptions = {
+  // Replace with your actual Vercel frontend URL
+  origin: 'https://my-gym-app.vercel.app', 
+  optionsSuccessStatus: 200 // For legacy browser support
+}
+app.use(cors(corsOptions));
 // Parse incoming JSON requests, making it available on req.body
 app.use(express.json());
 
