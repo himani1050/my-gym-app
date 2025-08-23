@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBFC Gym Client Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="app-header">
+            <h1>MBFC Gym Client Manager</h1>
+            <p id="client-count">Loading clients...</p>
+            <div class="search-container">
+                <span class="material-symbols-outlined search-icon">search</span>
+                <input type="search" id="search-bar" placeholder="Search client by name...">
+            </div>
+        </header>
+
+        <main id="client-list" class="client-list-container">
+            </main>
+
+        <button id="add-client-btn" class="fab" title="Add New Client">
+            <span class="material-symbols-outlined">add</span>
+        </button>
+    </div>
+
+    <div id="form-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="form-modal-title">New Client</h2>
+                <button class="close-modal-btn">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="client-form">
+                <input type="hidden" id="client-id">
+                <input type="text" id="name" placeholder="Full Name" required>
+                <input type="tel" id="contact" placeholder="10-Digit Contact Number" required>
+
+                <div class="form-group-inline">
+                    <input type="number" id="height-ft" placeholder="Height (ft)">
+                    <input type="number" id="height-in" placeholder="Height (in)" max="11">
+                </div>
+
+                <div class="form-group-inline">
+                    <input type="number" id="weight" placeholder="Weight (kg)" step="0.1">
+                    <select id="goal" required>
+                        <option value="" disabled selected>Select Goal</option>
+                        <option value="Gain Weight">Gain Weight</option>
+                        <option value="Lose Weight">Lose Weight</option>
+                        <option value="Maintain Weight">Maintain Weight</option>
+                        <option value="Powerlifting">Powerlifting</option>
+                        <option value="Bodybuilding">Bodybuilding</option>
+                    </select>
+                </div>
+
+                <div class="form-group-inline">
+                     <input type="number" id="fees-submitted" placeholder="Fees Submitted (₹)" required>
+                     <input type="number" id="fees-due" placeholder="Fees Due (₹)" value="0">
+                </div>
+
+                <label>Personal Training</label>
+                <div class="radio-group">
+                    <input type="radio" id="pt-none" name="pt" value="None" checked><label for="pt-none">None</label>
+                    <input type="radio" id="pt-standard" name="pt" value="Standard"><label for="pt-standard">Standard</label>
+                    <input type="radio" id="pt-advanced" name="pt" value="Advanced"><label for="pt-advanced">Advanced</label>
+                </div>
+
+                <label>Membership Duration:</label>
+                <select id="months" required>
+                    <option value="1">1 Month</option>
+                    <option value="3">3 Months</option>
+                    <option value="6">6 Months</option>
+                    <option value="12">12 Months</option>
+                </select>
+
+                <label>Fee Submission Date:</label>
+                <input type="date" id="fee-date" required>
+                <p class="end-date-preview">Subscription End: <span id="end-date-display">--/--/----</span></p>
+
+                <button type="submit" class="submit-btn">Save Client</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="details-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+             <div class="modal-header">
+                <h2 id="details-name">Client Details</h2>
+                <button class="close-modal-btn">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="details-content" class="details-grid">
+                </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

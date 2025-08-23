@@ -1,0 +1,285 @@
+/* --- Global Styles & Variables --- */
+:root {
+    --bg-color: #000000;
+    --surface-color: #1c1c1e;
+    --surface-color-2: #2c2c2e;
+    --primary-text: #ffffff;
+    --secondary-text: #8e8e93;
+    --primary-accent: #0a84ff;
+    --red-accent: #ff3b30;
+    --green-accent: #34c759;
+    --yellow-accent: #ffcc00; /* For due fees */
+    --border-radius: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--primary-text);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- App Layout & Header --- */
+.app-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 0 15px;
+}
+
+.app-header {
+    padding: 40px 0 20px 0;
+}
+
+.app-header h1 {
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.app-header p {
+    color: var(--secondary-text);
+    font-size: 17px;
+    margin: 4px 0 0 0;
+}
+
+/* NEW: Search Bar Styles */
+.search-container {
+    position: relative;
+    margin-top: 20px;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%);
+    color: var(--secondary-text);
+    pointer-events: none; /* Allows clicks to pass through to the input */
+}
+
+#search-bar {
+    width: 100%;
+    padding: 12px 12px 12px 40px; /* Left padding for icon */
+    background-color: var(--surface-color-2);
+    border: none;
+    border-radius: 10px;
+    color: var(--primary-text);
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+#search-bar::placeholder {
+    color: var(--secondary-text);
+}
+
+/* --- Client List & 3D Items --- */
+.client-list-container {
+    perspective: 1200px;
+    padding-bottom: 100px; /* Space for FAB */
+}
+
+.client-item {
+    background-color: var(--surface-color);
+    margin-bottom: 12px;
+    border-radius: var(--border-radius);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+
+.client-item:hover {
+    transform: translateZ(20px) rotateX(-3deg);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+}
+
+.client-item-content {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.client-info h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.client-info p {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    color: var(--secondary-text);
+    line-height: 1.4;
+}
+
+.client-info .pt-badge {
+    color: var(--primary-accent);
+    font-weight: 500;
+}
+
+.membership-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.status-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* NEW: Fee Due Badge Style */
+.fee-due-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 20px;
+    color: #000;
+    background-color: var(--yellow-accent);
+    white-space: nowrap;
+}
+
+.days-remaining {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: var(--green-accent);
+    background-color: rgba(52, 199, 89, 0.2);
+    white-space: nowrap;
+}
+
+.days-remaining.overdue {
+    color: var(--red-accent);
+    background-color: rgba(255, 59, 48, 0.2);
+}
+
+.delete-btn {
+    background: none; border: none; color: var(--secondary-text);
+    cursor: pointer; padding: 0; opacity: 0.6;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    z-index: 5;
+    line-height: 1;
+}
+
+.delete-btn:hover {
+    opacity: 1;
+    color: var(--red-accent);
+}
+
+/* --- Modal Styles --- */
+.hidden { display: none !important; }
+
+.modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000; animation: fadeIn 0.3s forwards;
+}
+
+.modal-content {
+    background-color: var(--surface-color); padding: 20px;
+    border-radius: 20px; width: 90%; max-width: 420px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    max-height: 90vh; overflow-y: auto;
+}
+
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 { margin: 0; font-size: 22px; }
+
+.close-modal-btn {
+    background-color: var(--surface-color-2); border: none;
+    border-radius: 50%; width: 30px; height: 30px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
+    color: var(--secondary-text);
+}
+
+/* --- Form Styles --- */
+#client-form input[type="text"],
+#client-form input[type="tel"],
+#client-form input[type="number"],
+#client-form input[type="date"],
+#client-form select {
+    width: 100%; padding: 12px; margin-bottom: 15px;
+    background-color: var(--surface-color-2);
+    border: 1px solid #545458; border-radius: var(--border-radius);
+    color: var(--primary-text); font-size: 16px; box-sizing: border-box;
+}
+
+.form-group-inline { display: flex; gap: 10px; }
+.form-group-inline > * { flex: 1; }
+#client-form label {
+    display: block; color: var(--secondary-text); margin-bottom: 5px; font-size: 14px;
+}
+
+.radio-group {
+    display: flex; background-color: var(--surface-color-2);
+    border-radius: var(--border-radius); margin-bottom: 15px; padding: 4px;
+}
+.radio-group input[type="radio"] { display: none; }
+.radio-group label {
+    flex: 1; text-align: center; padding: 8px; border-radius: 10px;
+    cursor: pointer; transition: all 0.2s ease;
+    color: var(--primary-text);
+}
+/* FIX: Change text color on selection for visibility */
+.radio-group input[type="radio"]:checked + label {
+    background-color: var(--primary-text);
+    color: var(--bg-color); /* Make text black when background is white */
+    font-weight: 600;
+}
+
+
+.end-date-preview { text-align: center; color: var(--secondary-text); margin: -5px 0 20px 0; }
+.submit-btn {
+    width: 100%; padding: 15px; font-size: 17px; font-weight: 600;
+    color: white; background-color: var(--primary-accent); border: none;
+    border-radius: var(--border-radius); cursor: pointer; transition: background-color 0.2s ease;
+}
+.submit-btn:hover { background-color: #007aff; }
+
+/* --- Details Modal --- */
+.details-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px 20px;
+}
+.detail-item {
+    background-color: var(--surface-color-2); padding: 10px; border-radius: 10px;
+}
+.detail-item strong {
+    display: block; color: var(--secondary-text); font-size: 13px; margin-bottom: 4px;
+}
+.detail-item span { font-size: 16px; font-weight: 500; }
+
+/* --- Floating Action Button (FAB) --- */
+.fab {
+    position: fixed; bottom: 50px; right: 30px; width: 56px; height: 56px;
+    border-radius: 50%; background-color: var(--primary-accent); border: none;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); cursor: pointer;
+    transition: transform 0.2s ease-in-out; z-index: 100;
+}
+.fab:hover { transform: scale(1.1); }
+.fab span { font-size: 28px; color: white; }
+
+/* --- Animations --- */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp {
+    from { transform: translateY(50px) scale(0.95); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.item-remove-animation { animation: fadeOutLeft 0.5s forwards; }
+@keyframes fadeOutLeft {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-100px); margin-bottom: -95px; } /* Adjust to match item height */
+}
