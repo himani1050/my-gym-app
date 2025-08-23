@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 5000;
 //app.use(cors());
 const corsOptions = {
   // Replace with your actual Vercel frontend URL
-  origin: 'https://my-gym-app.vercel.app', 
+  origin: 'https://my-gym-app.vercel.app/api/clients',
   optionsSuccessStatus: 200 // For legacy browser support
 }
 app.use(cors(corsOptions));
