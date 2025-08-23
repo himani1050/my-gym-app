@@ -7,7 +7,7 @@
 // -----------------------------------------------------------------------------
 
 // URL of your backend server API endpoint
-const API_URL = 'https://my-gym-app.vercel.app/api/clients';
+const API_URL = 'https://my-gym-app.vercel.app/';
 
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
