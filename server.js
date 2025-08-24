@@ -19,10 +19,9 @@ const PORT = process.env.PORT || 5000;
 
 // 3. Middleware setup
 // Enable CORS for all routes, allowing the frontend to make requests
-//app.use(cors());
 const corsOptions = {
   // Replace with your actual Vercel frontend URL
-  origin: 'https://my-gym-app.vercel.app/api/clients',
+  origin: 'https://my-gym-app.vercel.app',
   optionsSuccessStatus: 200 // For legacy browser support
 }
 app.use(cors(corsOptions));
@@ -37,8 +36,8 @@ if (!mongoUri) {
 }
 
 mongoose.connect(mongoUri)
-  .then(() => console.log('? MongoDB connected successfully.'))
-  .catch(err => console.error('? MongoDB connection error:', err));
+  .then(() => console.log('✅ MongoDB connected successfully.'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
 
 // 5. Define the Mongoose Schema for a Client
@@ -295,6 +294,11 @@ router.delete('/:id', async (req, res) => {
 
 // Use the router for all API endpoints under the '/api/clients' path
 app.use('/api/clients', router);
+
+// Add a catch-all route for the root
+app.get('/', (req, res) => {
+    res.send('MBFC Gym Client Manager API is running!');
+});
 
 // Start the server
 app.listen(PORT, () => {
