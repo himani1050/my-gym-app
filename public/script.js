@@ -121,11 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const clientId = clientIdInput.value;
         let response;
         if (clientId) {
-            // Update existing client
-            response = await fetch(`${API_URL}/${clientId}`, {
+            // Update existing client with id inside body
+            response = await fetch(API_URL, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ id: clientId, ...formData })
             });
         } else {
             // Create new client
@@ -148,12 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Deletes a client from the database
     const handleDelete = async (id) => {
-        const confirmed = window.confirm('Are you sure you want to remove this client?');
+        // Await the async window.confirm
+        const confirmed = await window.confirm('Are you sure you want to remove this client?');
         if (!confirmed) return;
 
         try {
-            const response = await fetch(`${API_URL}/${id}`, {
+            const response = await fetch(API_URL, {
                 method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
             });
             if (response.ok) {
                 const clientElement = document.querySelector(`.client-item[data-id='${id}']`);
@@ -162,6 +165,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     clientElement.addEventListener('animationend', () => {
                         fetchClients(); // Refresh list after animation
                     });
+                } else {
+                    fetchClients();
                 }
             } else {
                 const error = await response.json();
