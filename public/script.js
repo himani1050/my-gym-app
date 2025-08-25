@@ -249,33 +249,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const openFormModal = (client = null) => {
-        clientForm.reset();
-        clientIdInput.value = '';
-        document.getElementById('pt-none').checked = true;
-        document.getElementById('fees-due').value;
-        document.getElementById('aadhaar').value = client.aadhaar || '';
-        formModalTitle.textContent = 'New Client';
-        updateEndDatePreview();
+	    clientForm.reset();
+	    clientIdInput.value = '';
+	    document.getElementById('pt-none').checked = true;
+	    document.getElementById('fees-due').value = 0;
+	    formModalTitle.textContent = 'New Client';
+	    updateEndDatePreview();
 
-        if (client) {
-            formModalTitle.textContent = 'Edit Client';
-            clientIdInput.value = client._id;
-            document.getElementById('name').value = client.name;
-            document.getElementById('contact').value = client.contact;
-            document.getElementById('aadhaar').value = client.aadhaar || '';
-            document.getElementById('height-ft').value = client.height.ft;
-            document.getElementById('height-in').value = client.height.in;
-            document.getElementById('weight').value = client.weight;
-            document.getElementById('goal').value = client.goal;
-            document.getElementById('fees-submitted').value = client.fees.submitted;
-            document.getElementById('fees-due').value = client.fees.due;
-            document.querySelector(`input[name="pt"][value="${client.pt}"]`).checked = true;
-            document.getElementById('months').value = client.membership.months;
-            document.getElementById('fee-date').value = new Date(client.membership.feeDate).toISOString().split('T')[0];
-            updateEndDatePreview();
-        }
-        formModal.classList.remove('hidden');
-    };
+	    if (client) {
+	        formModalTitle.textContent = 'Edit Client';
+	        clientIdInput.value = client._id;
+	        document.getElementById('name').value = client.name;
+	        document.getElementById('contact').value = client.contact;
+	        document.getElementById('aadhaar').value = client.aadhaar || '';
+	        document.getElementById('height-ft').value = client.height.ft;
+	        document.getElementById('height-in').value = client.height.in;
+	        document.getElementById('weight').value = client.weight;
+	        document.getElementById('goal').value = client.goal;
+	        document.getElementById('fees-submitted').value = client.fees.submitted;
+	        document.getElementById('fees-due').value = client.fees.due;
+	        document.querySelector(`input[name="pt"][value="${client.pt}"]`).checked = true;
+	        document.getElementById('months').value = client.membership.months;
+	        document.getElementById('fee-date').value = new Date(client.membership.feeDate).toISOString().split('T')[0];
+	        updateEndDatePreview();
+	    } else {
+	        // For new users, ensure Aadhaar field is blank
+	        document.getElementById('aadhaar').value = '';
+	    }
+	    formModal.classList.remove('hidden');
+	};
+
 
     const closeAllModals = () => {
         formModal.classList.add('hidden');
