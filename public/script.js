@@ -252,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clientIdInput.value = '';
         document.getElementById('pt-none').checked = true;
         document.getElementById('fees-due').value;
+        document.getElementById('aadhaar').value = client.aadhaar || '';
         formModalTitle.textContent = 'New Client';
         updateEndDatePreview();
 
