@@ -233,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         detailsName.textContent = client.name;
         detailsContent.innerHTML = `
+            <div class="detail-item"><strong>Aadhaar</strong><span>${client.aadhaar || '—'}</span></div>
             <div class="detail-item"><strong>Contact</strong><span>${client.contact}</span></div>
             <div class="detail-item"><strong>Goal</strong><span>${client.goal}</span></div>
             <div class="detail-item"><strong>Height</strong><span>${client.height.ft}'${client.height.in}"</span></div>
