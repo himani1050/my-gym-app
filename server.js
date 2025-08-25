@@ -55,6 +55,13 @@ const clientSchema = new mongoose.Schema({
     trim: true,
     match: /^\d{10}$/ // Simple validation for a 10-digit number
   },
+  aadhaar: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    match: /^\d{12}$/
+  },
   height: {
     ft: Number,
     in: Number
@@ -112,6 +119,7 @@ router.post('/', async (req, res) => {
     const {
       name,
       contact,
+      aadhaar,
       heightFt,
       heightIn,
       weight,
@@ -127,6 +135,7 @@ router.post('/', async (req, res) => {
     const newClient = new Client({
       name,
       contact,
+      aadhaar,
       height: {
         ft: heightFt,
         in: heightIn
@@ -206,6 +215,7 @@ router.put('/:id', async (req, res) => {
     const {
       name,
       contact,
+      aadhaar,
       heightFt,
       heightIn,
       weight,
@@ -221,6 +231,7 @@ router.put('/:id', async (req, res) => {
     const updateData = {
       name,
       contact,
+      aadhaar,
       height: {
         ft: heightFt,
         in: heightIn

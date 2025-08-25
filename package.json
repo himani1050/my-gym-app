@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "MBgymApp",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -18,5 +18,14 @@
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "mongoose": "^8.18.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/himani1050/my-gym-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/himani1050/my-gym-app/issues"
+  },
+  "homepage": "https://github.com/himani1050/my-gym-app#readme"
 }

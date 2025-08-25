@@ -40,6 +40,8 @@
                 <input type="hidden" id="client-id">
                 <input type="text" id="name" placeholder="Full Name" required>
                 <input type="tel" id="contact" placeholder="10-Digit Contact Number" required>
+				<input type="text" id="aadhaar" placeholder="12-Digit Aadhaar Number" pattern="\d{12}" maxlength="12" title="Enter exactly 12 digits" required>
+
 
                 <div class="form-group-inline">
                     <input type="number" id="height-ft" placeholder="Height (ft)">
@@ -60,7 +62,7 @@
 
                 <div class="form-group-inline">
                      <input type="number" id="fees-submitted" placeholder="Fees Submitted (₹)" required>
-                     <input type="number" id="fees-due" placeholder="Fees Due (₹)" value="0">
+                     <input type="number" id="fees-due" placeholder="Fees Due (₹)">
                 </div>
 
                 <label>Personal Training</label>
@@ -79,7 +81,7 @@
                 </select>
 
                 <label>Fee Submission Date:</label>
-                <input type="date" id="fee-date" required>
+                <input type="date" id="fee-date" required min="2023-01-01" max="2050-12-31">
                 <p class="end-date-preview">Subscription End: <span id="end-date-display">--/--/----</span></p>
 
                 <button type="submit" class="submit-btn">Save Client</button>
