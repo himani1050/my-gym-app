@@ -260,6 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clientIdInput.value = client._id;
             document.getElementById('name').value = client.name;
             document.getElementById('contact').value = client.contact;
+            document.getElementById('aadhaar').value = client.aadhaar || '';
             document.getElementById('height-ft').value = client.height.ft;
             document.getElementById('height-in').value = client.height.in;
             document.getElementById('weight').value = client.weight;
