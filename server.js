@@ -210,59 +210,46 @@ router.get('/:id', async (req, res) => {
 // ------------------------------------
 // UPDATE a client (PUT)
 // ------------------------------------
-router.put('/:id', async (req, res) => {
-  try {
+router.put('/', async (req, res) => {
     const {
-      name,
-      contact,
-      aadhaar,
-      heightFt,
-      heightIn,
-      weight,
-      goal,
-      feesSubmitted,
-      feesDue,
-      pt,
-      months,
-      feeDate
+        id,
+        name,
+        contact,
+        aadhaar,
+        heightFt,
+        heightIn,
+        weight,
+        goal,
+        feesSubmitted,
+        feesDue,
+        pt,
+        months,
+        feeDate
     } = req.body;
 
-    // Prepare the update object
     const updateData = {
-      name,
-      contact,
-      aadhaar,
-      height: {
-        ft: heightFt,
-        in: heightIn
-      },
-      weight,
-      goal,
-      fees: {
-        submitted: feesSubmitted,
-        due: feesDue
-      },
-      pt,
-      membership: {
-        months,
-        feeDate: new Date(feeDate),
-        endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
-      }
+        name,
+        contact,
+        aadhaar,
+        height: { ft: heightFt, in: heightIn },
+        weight,
+        goal,
+        fees: { submitted: feesSubmitted, due: feesDue },
+        pt,
+        membership: {
+            months,
+            feeDate: new Date(feeDate),
+            endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
+        }
     };
 
     const updatedClient = await Client.findByIdAndUpdate(
-      req.params.id,
-      updateData, {
-        new: true,
-        runValidators: true
-      } // `new: true` returns the updated document
+        id,
+        updateData, {
+            new: true,
+            runValidators: true
+        }
     );
-
-    if (!updatedClient) {
-      return res.status(404).json({
-        message: 'Client not found.'
-      });
-    }
 
     res.status(200).json(updatedClient);
   } catch (error) {
@@ -282,9 +269,9 @@ router.put('/:id', async (req, res) => {
 // ------------------------------------
 // DELETE a client (DELETE)
 // ------------------------------------
-router.delete('/:id', async (req, res) => {
-  try {
-    const deletedClient = await Client.findByIdAndDelete(req.params.id);
+router.delete('/', async (req, res) => {
+    const { id } = req.body;
+    const deletedClient = await Client.findByIdAndDelete(id);
 
     if (!deletedClient) {
       return res.status(404).json({
