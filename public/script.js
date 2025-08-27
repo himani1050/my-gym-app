@@ -95,55 +95,58 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     // Handles form submission for new client or updating an existing one
     const handleFormSubmit = async (e) => {
-        e.preventDefault();
-        const contact = document.getElementById('contact').value;
-        const feeDate = document.getElementById('fee-date').value;
-        const aadhaar = document.getElementById('aadhaar').value; // New: Get Aadhaar number from input
-        // Basic frontend validation
-        if (new Date(feeDate) > new Date()) {
-            showMessage('Fee submission date cannot be in the future.', 'error');
-            return;
-        }
-        const formData = {
-            name: document.getElementById('name').value,
-            contact: contact,
-            aadhaar: aadhaar, // New: Add aadhaar to the data object
-            heightFt: parseInt(document.getElementById('height-ft').value, 10),
-            heightIn: parseInt(document.getElementById('height-in').value, 10),
-            weight: parseFloat(document.getElementById('weight').value),
-            goal: document.getElementById('goal').value,
-            feesSubmitted: parseFloat(document.getElementById('fees-submitted').value),
-            feesDue: parseFloat(document.getElementById('fees-due').value),
-            pt: document.querySelector('input[name="pt"]:checked').value,
-            months: parseInt(document.getElementById('months').value, 10),
-            feeDate: feeDate,
-        };
-        const clientId = clientIdInput.value;
-        let response;
-        if (clientId) {
-            // Update existing client with id in URL
-            response = await fetch(`${API_URL}/${clientId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)  // Remove id from body
-            });
-        } else {
-            // Create new client
-            response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-        }
-        if (response.ok) {
-            showMessage('Client saved successfully!');
-            closeAllModals();
-            fetchClients(); // Refresh client list
-        } else {
-            const error = await response.json();
-            showMessage(`Error: ${error.message}`, 'error');
-        }
-    };
+	    e.preventDefault();
+	    const contact = document.getElementById('contact').value;
+	    const feeDate = document.getElementById('fee-date').value;
+	    const aadhaar = document.getElementById('aadhaar').value;
+
+	    if (new Date(feeDate) > new Date()) {
+	        showMessage('Fee submission date cannot be in the future.', 'error');
+	        return;
+	    }
+
+	    const formData = {
+	        name: document.getElementById('name').value,
+	        contact: contact,
+	        aadhaar: aadhaar,
+	        heightFt: parseInt(document.getElementById('height-ft').value, 10),
+	        heightIn: parseInt(document.getElementById('height-in').value, 10),
+	        weight: parseFloat(document.getElementById('weight').value),
+	        goal: document.getElementById('goal').value,
+	        feesSubmitted: parseFloat(document.getElementById('fees-submitted').value),
+	        feesDue: parseFloat(document.getElementById('fees-due').value),
+	        pt: document.querySelector('input[name="pt"]:checked').value,
+	        months: parseInt(document.getElementById('months').value, 10),
+	        feeDate: feeDate,
+	    };
+
+	    const clientId = clientIdInput.value;
+	    let response;
+
+	    if (clientId) {
+	        response = await fetch(API_URL, {
+	            method: 'PUT',
+	            headers: { 'Content-Type': 'application/json' },
+	            body: JSON.stringify({ id: clientId, ...formData })
+	        });
+	    } else {
+	        response = await fetch(API_URL, {
+	            method: 'POST',
+	            headers: { 'Content-Type': 'application/json' },
+	            body: JSON.stringify(formData)
+	        });
+	    }
+
+	    if (response.ok) {
+	        showMessage('Client saved successfully!');
+	        closeAllModals();
+	        fetchClients();
+	    } else {
+	        const error = await response.json();
+	        showMessage(`Error: ${error.message}`, 'error');
+	    }
+	};
+
     // Deletes a client from the database
     const handleDelete = async (id) => {
         // Await the async window.confirm
