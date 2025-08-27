@@ -283,3 +283,37 @@ body {
     from { opacity: 1; transform: translateX(0); }
     to { opacity: 0; transform: translateX(-100px); margin-bottom: -95px; } /* Adjust to match item height */
 }
+
+/* Add this to your existing CSS */
+.whatsapp-btn {
+    background: #25D366; /* WhatsApp green color */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 8px;
+}
+
+.whatsapp-btn:hover {
+    background: #128C7E; /* Darker WhatsApp green */
+    transform: scale(1.05);
+}
+
+.whatsapp-btn img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1); /* Makes icon white */
+}
+
+/* Update existing membership-status to accommodate new button */
+.membership-status {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Add spacing between buttons */
+}

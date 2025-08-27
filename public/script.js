@@ -1,14 +1,11 @@
 // script.js
-
 // -----------------------------------------------------------------------------
 // FRONTEND LOGIC - API INTEGRATION
 // This script now communicates with the Node.js backend to perform CRUD operations.
 // It uses the Fetch API to send and receive JSON data.
 // -----------------------------------------------------------------------------
-
 // URL of your backend server API endpoint
 const API_URL = 'https://my-gym-app.vercel.app/api/clients';
-
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const clientListContainer = document.getElementById('client-list');
@@ -16,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const clientCountEl = document.getElementById('client-count');
     const searchBar = document.getElementById('search-bar');
     const loadingSpinner = document.getElementById('loading-spinner');
-
     // Form Modal Elements
     const formModal = document.getElementById('form-modal');
     const clientForm = document.getElementById('client-form');
@@ -26,14 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const monthsInput = document.getElementById('months');
     const clientIdInput = document.getElementById('client-id');
     const aadhaarInput = document.getElementById('aadhaar'); // New: Aadhaar input field
-
     // Details Modal Elements
     const detailsModal = document.getElementById('details-modal');
     const detailsName = document.getElementById('details-name');
     const detailsContent = document.getElementById('details-content');
-
     let clients = [];
-
     // --- UTILITY FUNCTIONS ---
     // A simple custom message box to replace alert/confirm
     const showMessage = (message, type = 'info') => {
@@ -45,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             messageBox.remove();
         }, 3000);
     };
-
     const calculateDaysRemaining = (endDateStr) => {
         const endDate = new Date(endDateStr);
         const today = new Date();
@@ -53,15 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         endDate.setHours(0, 0, 0, 0);
         return Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
     };
-
     const formatDate = (date) => new Date(date).toLocaleDateString('en-GB');
-
     const calculateEndDate = (startDateStr, months) => {
         const startDate = new Date(startDateStr);
         startDate.setMonth(startDate.getMonth() + months);
         return startDate.toISOString().split('T')[0];
     };
-
     const updateEndDatePreview = () => {
         if (feeDateInput.value && monthsInput.value) {
             const endDate = calculateEndDate(feeDateInput.value, parseInt(monthsInput.value, 10));
@@ -69,6 +58,22 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             endDateDisplay.textContent = '--/--/----';
         }
+    };
+
+    // WhatsApp functionality - opens WhatsApp with personalized message
+    const openWhatsApp = (contact, name) => {
+        // Remove any non-digit characters and ensure it's a valid Indian number
+        const cleanContact = contact.replace(/\D/g, '');
+        // Add country code if not present (assuming Indian numbers)
+        const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
+        // Create a personalized message
+        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. How can I help you today?`;
+        // Encode the message for URL
+        const encodedMessage = encodeURIComponent(message);
+        // Create WhatsApp URL
+        const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        // Open WhatsApp in a new tab
+        window.open(whatsappURL, '_blank');
     };
 
     // --- API CALLS ---
@@ -91,21 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
             clientCountEl.textContent = 'Error';
         }
     };
-
     // Handles form submission for new client or updating an existing one
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-
         const contact = document.getElementById('contact').value;
         const feeDate = document.getElementById('fee-date').value;
         const aadhaar = document.getElementById('aadhaar').value; // New: Get Aadhaar number from input
-
         // Basic frontend validation
         if (new Date(feeDate) > new Date()) {
             showMessage('Fee submission date cannot be in the future.', 'error');
             return;
         }
-
         const formData = {
             name: document.getElementById('name').value,
             contact: contact,
@@ -120,16 +121,15 @@ document.addEventListener('DOMContentLoaded', () => {
             months: parseInt(document.getElementById('months').value, 10),
             feeDate: feeDate,
         };
-
         const clientId = clientIdInput.value;
         let response;
         if (clientId) {
-		    // Update existing client with id in URL
-		    response = await fetch(`${API_URL}/${clientId}`, {
-		        method: 'PUT',
-		        headers: { 'Content-Type': 'application/json' },
-		        body: JSON.stringify(formData)  // Remove id from body
-		    });
+            // Update existing client with id in URL
+            response = await fetch(`${API_URL}/${clientId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)  // Remove id from body
+            });
         } else {
             // Create new client
             response = await fetch(API_URL, {
@@ -138,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(formData)
             });
         }
-
         if (response.ok) {
             showMessage('Client saved successfully!');
             closeAllModals();
@@ -148,13 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(`Error: ${error.message}`, 'error');
         }
     };
-
     // Deletes a client from the database
     const handleDelete = async (id) => {
         // Await the async window.confirm
         const confirmed = await window.confirm('Are you sure you want to remove this client?');
         if (!confirmed) return;
-
         try {
             const response = await fetch(API_URL, {
                 method: 'DELETE',
@@ -180,41 +177,33 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Delete error:', error);
         }
     };
-
     // --- CORE RENDERING ---
     const renderClients = () => {
         const searchTerm = searchBar.value.toLowerCase();
         clientListContainer.innerHTML = '';
-
         const filteredClients = clients.filter(client =>
             client.name.toLowerCase().includes(searchTerm)
         );
-
         if (filteredClients.length === 0) {
             clientListContainer.innerHTML = `<p style="text-align:center; color: var(--secondary-text);">No clients found.</p>`;
         }
-
         // Sort by days remaining
         filteredClients.sort((a, b) => {
             const daysA = calculateDaysRemaining(a.membership.endDate);
             const daysB = calculateDaysRemaining(b.membership.endDate);
             return daysA - daysB;
         });
-
         filteredClients.forEach(client => {
             const daysRemaining = calculateDaysRemaining(client.membership.endDate);
             const isOverdue = daysRemaining < 0;
             const hasFeeDue = client.fees.due > 0;
-
             let subheading = `${client.contact} &bull; ${client.goal}`;
             if (client.pt !== 'None') {
                 subheading += ` &bull; <span class="pt-badge">PT: ${client.pt}</span>`;
             }
-
             const clientItem = document.createElement('div');
             clientItem.className = 'client-item';
             clientItem.dataset.id = client._id; // Use MongoDB's unique _id
-
             clientItem.innerHTML = `
                 <div class="client-item-content">
                     <div class="client-info">
@@ -228,6 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ${isOverdue ? `${Math.abs(daysRemaining)}d overdue` : `${daysRemaining}d left`}
                             </span>
                         </div>
+                        <button class="whatsapp-btn" title="Message on WhatsApp">
+                            <img src="wp.png" alt="WhatsApp" />
+                        </button>
                         <button class="edit-btn" title="Edit Client">
                              <span class="material-symbols-outlined">edit</span>
                         </button>
@@ -239,10 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             clientListContainer.appendChild(clientItem);
         });
-
         clientCountEl.textContent = `${filteredClients.length} of ${clients.length} Client${clients.length !== 1 ? 's' : ''}`;
     };
-
     // --- DETAILS MODAL LOGIC ---
     const openDetailsModal = (id) => {
         const client = clients.find(c => c._id === id);
@@ -250,11 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('Client not found.', 'error');
             return;
         }
-
         detailsName.textContent = client.name;
         detailsContent.innerHTML = `
             <div class="detail-item"><strong>Contact</strong><span>${client.contact}</span></div>
-            <div class="detail-item"><strong>Aadhaar No.</strong><span>${client.aadhaar || 'N/A'}</span></div> <div class="detail-item"><strong>Goal</strong><span>${client.goal}</span></div>
+            <div class="detail-item"><strong>Aadhaar No.</strong><span>${client.aadhaar || 'N/A'}</span></div>
+            <div class="detail-item"><strong>Goal</strong><span>${client.goal}</span></div>
             <div class="detail-item"><strong>Height</strong><span>${client.height.ft}'${client.height.in}"</span></div>
             <div class="detail-item"><strong>Weight</strong><span>${client.weight}kg</span></div>
             <div class="detail-item"><strong>Fee Submitted</strong><span>₹${client.fees.submitted.toFixed(2)}</span></div>
@@ -266,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         detailsModal.classList.remove('hidden');
     };
-
     // --- FORM MODAL LOGIC ---
     const openFormModal = (client = null) => {
         clientForm.reset();
@@ -275,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('fees-due').value = 0;
         formModalTitle.textContent = 'New Client';
         updateEndDatePreview();
-
         if (client) {
             formModalTitle.textContent = 'Edit Client';
             clientIdInput.value = client._id;
@@ -295,29 +283,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         formModal.classList.remove('hidden');
     };
-
     const closeAllModals = () => {
         formModal.classList.add('hidden');
         detailsModal.classList.add('hidden');
     };
-
     // --- EVENT LISTENERS ---
     addClientBtn.addEventListener('click', () => openFormModal());
     clientForm.addEventListener('submit', handleFormSubmit);
     searchBar.addEventListener('input', renderClients);
 
-    // Use event delegation for dynamic buttons
+    // Use event delegation for dynamic buttons - UPDATED to handle WhatsApp button
     clientListContainer.addEventListener('click', (e) => {
         const clientItem = e.target.closest('.client-item');
         if (!clientItem) return;
+
         const clientId = clientItem.dataset.id;
+        const client = clients.find(c => c._id === clientId);
 
         if (e.target.closest('.delete-btn')) {
             handleDelete(clientId);
         } else if (e.target.closest('.edit-btn')) {
-            const client = clients.find(c => c._id === clientId);
             if (client) {
                 openFormModal(client);
+            }
+        } else if (e.target.closest('.whatsapp-btn')) {
+            // Handle WhatsApp button click - NEW FUNCTIONALITY
+            if (client) {
+                openWhatsApp(client.contact, client.name);
             }
         } else {
             openDetailsModal(clientId);
@@ -327,10 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', closeAllModals));
     formModal.addEventListener('click', (e) => e.target === formModal && closeAllModals());
     detailsModal.addEventListener('click', (e) => e.target === detailsModal && closeAllModals());
-
     feeDateInput.addEventListener('change', updateEndDatePreview);
     monthsInput.addEventListener('change', updateEndDatePreview);
-
     // --- INITIALIZATION ---
     fetchClients();
 });
@@ -350,7 +340,6 @@ window.confirm = (message) => {
             </div>
         `;
         document.body.appendChild(modal);
-
         modal.querySelector('.confirm-btn-yes').addEventListener('click', () => {
             modal.remove();
             resolve(true);
