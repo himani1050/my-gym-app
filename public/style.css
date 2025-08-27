@@ -531,7 +531,7 @@ body {
     justify-content: center !important;
     cursor: pointer;
     transition: all 0.3s ease;
-    padding-left: 4px !important; /* ? Shifts icon slightly right */
+    padding-left: 2px !important; /* ? Shifts icon slightly right */
 }
 
 .edit-btn::before,
