@@ -520,30 +520,33 @@ body {
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* Fix the edit button to remove white background */
 .edit-btn {
-    background: transparent; /* Changed from #404040 to transparent */
-    border: none;
+    background: transparent !important;
+    border: none !important;
     border-radius: 50%;
     width: 40px;
     height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     cursor: pointer;
     transition: all 0.3s ease;
-    padding: 0;
+    padding: 0 !important;
 }
 
-.edit-btn:hover {
-    background: rgba(255, 255, 255, 0.1); /* Light transparent background on hover */
-    transform: scale(1.05);
+.edit-btn::before,
+.edit-btn::after {
+    content: none !important;
+    display: none !important;
 }
 
-/* Style for your custom edit icon */
+.edit-btn * {
+    pointer-events: none;
+}
+
 .edit-icon {
     width: 24px;
     height: 24px;
-    filter: none; /* Remove the white filter */
-    pointer-events: none;
+    filter: none;
+    display: block;
 }
