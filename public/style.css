@@ -519,3 +519,36 @@ body {
     font-weight: 500;
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
+
+/* Custom edit button styling */
+.edit-btn {
+    background: #404040;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-btn:hover {
+    background: #555;
+    transform: scale(1.05);
+}
+
+/* Style for your custom edit icon image */
+.edit-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1); /* Makes the icon white */
+    pointer-events: none; /* Prevents the image from interfering with button clicks */
+}
+
+/* Alternative: If you want colored icon instead of white */
+.edit-icon.colored {
+    filter: none; /* Remove the white filter for colored icons */
+}
