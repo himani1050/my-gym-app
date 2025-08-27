@@ -284,9 +284,9 @@ body {
     to { opacity: 0; transform: translateX(-100px); margin-bottom: -95px; } /* Adjust to match item height */
 }
 
-/* Add this to your existing CSS */
+/* Ensure WhatsApp button is clickable on all devices */
 .whatsapp-btn {
-    background: #25D366; /* WhatsApp green color */
+    background: #25D366;
     color: white;
     border: none;
     border-radius: 50%;
@@ -298,22 +298,34 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-left: 8px;
+    
+    /* These properties fix desktop clicking issues */
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .whatsapp-btn:hover {
-    background: #128C7E; /* Darker WhatsApp green */
+    background: #128C7E;
     transform: scale(1.05);
 }
 
 .whatsapp-btn img {
     width: 20px;
     height: 20px;
-    filter: brightness(0) invert(1); /* Makes icon white */
+    filter: brightness(0) invert(1);
+    pointer-events: none; /* Prevent img from blocking clicks */
 }
 
-/* Update existing membership-status to accommodate new button */
+/* Ensure membership-status container doesn't interfere */
 .membership-status {
     display: flex;
     align-items: center;
-    gap: 8px; /* Add spacing between buttons */
+    gap: 8px;
+    pointer-events: auto;
 }
