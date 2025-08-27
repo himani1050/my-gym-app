@@ -259,8 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	                        <img src="wp.png" alt="WhatsApp" />
 	                    </button>
 	                    <button class="edit-btn" title="Edit Client">
-	                         //<img src="edit.png" alt="Edit" class="edit-icon" />
-	                         <span class="material-symbols-outlined">edit</span>
+	                         <img src="edit.png" alt="Edit" class="edit-icon" />
+	                         //<span class="material-symbols-outlined">edit</span>
 	                    </button>
 	                    <button class="delete-btn" title="Remove Client">
 	                         <span class="material-symbols-outlined">delete</span>
