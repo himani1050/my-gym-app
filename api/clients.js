@@ -84,6 +84,7 @@ module.exports = async (req, res) => {
         const {
           name,
           contact,
+          aadhaar,
           heightFt,
           heightIn,
           weight,
@@ -98,6 +99,7 @@ module.exports = async (req, res) => {
         const newClient = new Client({
           name,
           contact,
+          aadhaar,
           height: { ft: heightFt, in: heightIn },
           weight,
           goal,
@@ -127,6 +129,7 @@ module.exports = async (req, res) => {
         const {
           id,
           name,
+          aadhaar,
           contact,
           heightFt,
           heightIn,
@@ -142,6 +145,7 @@ module.exports = async (req, res) => {
         const updateData = {
           name,
           contact,
+          aadhaar,
           height: { ft: heightFt, in: heightIn },
           weight,
           goal,
