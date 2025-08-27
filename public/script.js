@@ -202,61 +202,76 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- CORE RENDERING ---
-    const renderClients = () => {
-        const searchTerm = searchBar.value.toLowerCase();
-        clientListContainer.innerHTML = '';
-        const filteredClients = clients.filter(client =>
-            client.name.toLowerCase().includes(searchTerm)
-        );
-        if (filteredClients.length === 0) {
-            clientListContainer.innerHTML = `<p style="text-align:center; color: var(--secondary-text);">No clients found.</p>`;
-        }
-        // Sort by days remaining
-        filteredClients.sort((a, b) => {
-            const daysA = calculateDaysRemaining(a.membership.endDate);
-            const daysB = calculateDaysRemaining(b.membership.endDate);
-            return daysA - daysB;
-        });
-        filteredClients.forEach(client => {
-            const daysRemaining = calculateDaysRemaining(client.membership.endDate);
-            const isOverdue = daysRemaining < 0;
-            const hasFeeDue = client.fees.due > 0;
-            let subheading = `${client.contact} &bull; ${client.goal}`;
-            if (client.pt !== 'None') {
-                subheading += ` &bull; <span class="pt-badge">PT: ${client.pt}</span>`;
-            }
-            const clientItem = document.createElement('div');
-            clientItem.className = 'client-item';
-            clientItem.dataset.id = client._id;
-            clientItem.innerHTML = `
-                <div class="client-item-content">
-                    <div class="client-info">
-                        <h3>${client.name}</h3>
-                        <p>${subheading}</p>
-                    </div>
-                    <div class="membership-status">
-                        <div class="status-badges">
-                            ${hasFeeDue ? `<span class="fee-due-badge">Due: ₹${client.fees.due.toFixed(2)}</span>` : ''}
-                            <span class="days-remaining ${isOverdue ? 'overdue' : ''}">
-                                ${isOverdue ? `${Math.abs(daysRemaining)}d overdue` : `${daysRemaining}d left`}
-                            </span>
-                        </div>
-                        <button class="whatsapp-btn" title="Message on WhatsApp">
-                            <img src="wp.png" alt="WhatsApp" />
-                        </button>
-                        <button class="edit-btn" title="Edit Client">
-                             <span class="material-symbols-outlined">edit</span>
-                        </button>
-                        <button class="delete-btn" title="Remove Client">
-                             <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-            clientListContainer.appendChild(clientItem);
-        });
-        clientCountEl.textContent = `${filteredClients.length} of ${clients.length} Client${clients.length !== 1 ? 's' : ''}`;
-    };
+	const renderClients = () => {
+	    const searchTerm = searchBar.value.toLowerCase();
+	    clientListContainer.innerHTML = '';
+	    const filteredClients = clients.filter(client =>
+	        client.name.toLowerCase().includes(searchTerm)
+	    );
+	    if (filteredClients.length === 0) {
+	        clientListContainer.innerHTML = `<p style="text-align:center; color: var(--secondary-text);">No clients found.</p>`;
+	    }
+	    // Sort by days remaining
+	    filteredClients.sort((a, b) => {
+	        const daysA = calculateDaysRemaining(a.membership.endDate);
+	        const daysB = calculateDaysRemaining(b.membership.endDate);
+	        return daysA - daysB;
+	    });
+
+	    filteredClients.forEach(client => {
+	        const daysRemaining = calculateDaysRemaining(client.membership.endDate);
+	        const isOverdue = daysRemaining < 0;
+	        const hasFeeDue = client.fees.due > 0;
+
+	        // ✅ UPDATED: Build subheading with medical condition
+	        let subheading = `${client.contact} &bull; ${client.goal}`;
+
+	        // Add PT information if exists
+	        if (client.pt !== 'None') {
+	            subheading += ` &bull; <span class="pt-badge">PT: ${client.pt}</span>`;
+	        }
+
+	        // ✅ NEW: Add medical condition if exists (only if "yes")
+	        if (client.medicalCondition && client.medicalCondition.hasMedicalCondition) {
+	            const medicalText = client.medicalCondition.conditionDetails
+	                ? client.medicalCondition.conditionDetails
+	                : 'Medical condition noted';
+	            subheading += ` &bull; <span class="medical-badge">${medicalText}</span>`;
+	        }
+
+	        const clientItem = document.createElement('div');
+	        clientItem.className = 'client-item';
+	        clientItem.dataset.id = client._id;
+	        clientItem.innerHTML = `
+	            <div class="client-item-content">
+	                <div class="client-info">
+	                    <h3>${client.name}</h3>
+	                    <p>${subheading}</p>
+	                </div>
+	                <div class="membership-status">
+	                    <div class="status-badges">
+	                        ${hasFeeDue ? `<span class="fee-due-badge">Due: ₹${client.fees.due.toFixed(2)}</span>` : ''}
+	                        <span class="days-remaining ${isOverdue ? 'overdue' : ''}">
+	                            ${isOverdue ? `${Math.abs(daysRemaining)}d overdue` : `${daysRemaining}d left`}
+	                        </span>
+	                    </div>
+	                    <button class="whatsapp-btn" title="Message on WhatsApp">
+	                        <img src="wp.png" alt="WhatsApp" />
+	                    </button>
+	                    <button class="edit-btn" title="Edit Client">
+	                         <span class="material-symbols-outlined">edit</span>
+	                    </button>
+	                    <button class="delete-btn" title="Remove Client">
+	                         <span class="material-symbols-outlined">delete</span>
+	                    </button>
+	                </div>
+	            </div>
+	        `;
+	        clientListContainer.appendChild(clientItem);
+	    });
+	    clientCountEl.textContent = `${filteredClients.length} of ${clients.length} Client${clients.length !== 1 ? 's' : ''}`;
+	};
+
 
     // ✅ UPDATED: Details modal now shows medical condition
     const openDetailsModal = (id) => {
