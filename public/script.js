@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const feeDateInput = document.getElementById('fee-date');
     const monthsInput = document.getElementById('months');
     const clientIdInput = document.getElementById('client-id');
-    //const aadhaarInput = document.getElementById('aadhaar');  New: Aadhaar input field
+    const aadhaarInput = document.getElementById('aadhaar'); // New: Aadhaar input field
 
     // Details Modal Elements
     const detailsModal = document.getElementById('details-modal');
@@ -254,8 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         detailsName.textContent = client.name;
         detailsContent.innerHTML = `
             <div class="detail-item"><strong>Contact</strong><span>${client.contact}</span></div>
-            <div class="detail-item"><strong>Aadhaar No.</strong><span>${client.aadhaar}</span></div>
-            <div class="detail-item"><strong>Goal</strong><span>${client.goal}</span></div>
+            <div class="detail-item"><strong>Aadhaar No.</strong><span>${client.aadhaar || 'N/A'}</span></div> <div class="detail-item"><strong>Goal</strong><span>${client.goal}</span></div>
             <div class="detail-item"><strong>Height</strong><span>${client.height.ft}'${client.height.in}"</span></div>
             <div class="detail-item"><strong>Weight</strong><span>${client.weight}kg</span></div>
             <div class="detail-item"><strong>Fee Submitted</strong><span>₹${client.fees.submitted.toFixed(2)}</span></div>
@@ -282,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clientIdInput.value = client._id;
             document.getElementById('name').value = client.name;
             document.getElementById('contact').value = client.contact;
-            document.getElementById('aadhaar').value = client.aadhaar; // New: Populate Aadhaar field for editing
+            document.getElementById('aadhaar').value = client.aadhaar || ''; // New: Populate Aadhaar field for editing
             document.getElementById('height-ft').value = client.height.ft;
             document.getElementById('height-in').value = client.height.in;
             document.getElementById('weight').value = client.weight;
