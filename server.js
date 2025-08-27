@@ -211,10 +211,9 @@ router.get('/:id', async (req, res) => {
 // ------------------------------------
 // UPDATE a client (PUT)
 // ------------------------------------
-router.put('/', async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const {
-            id, // ID is now in the body, as per your frontend script
             name,
             contact,
             aadhaar, // New: Destructure Aadhaar for updates
@@ -253,7 +252,7 @@ router.put('/', async (req, res) => {
         };
 
         const updatedClient = await Client.findByIdAndUpdate(
-            id,
+            req.params.id,
             updateData, {
                 new: true,
                 runValidators: true
@@ -284,11 +283,9 @@ router.put('/', async (req, res) => {
 // ------------------------------------
 // DELETE a client (DELETE)
 // ------------------------------------
-router.delete('/', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        const { id } = req.body; // ID is now in the body
-
-        const deletedClient = await Client.findByIdAndDelete(id);
+        const deletedClient = await Client.findByIdAndDelete(req.params.id);
 
         if (!deletedClient) {
             return res.status(404).json({
