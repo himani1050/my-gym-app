@@ -435,3 +435,65 @@ window.confirm = (message) => {
         document.addEventListener('keydown', handleKeydown);
     });
 };
+
+
+// Enhanced toggleMedicalDetails with color changes
+const toggleMedicalDetails = () => {
+    const medicalYes = document.getElementById('medical-yes');
+    const medicalNo = document.getElementById('medical-no');
+    const medicalDetailsRow = document.getElementById('medical-details-row');
+    const medicalDetailsTextarea = document.getElementById('medical-details');
+
+    // Get the labels
+    const noLabel = medicalNo ? medicalNo.closest('.radio-label') : null;
+    const yesLabel = medicalYes ? medicalYes.closest('.radio-label') : null;
+
+    // Remove previous selection classes
+    if (noLabel) noLabel.classList.remove('selected-no', 'selected-yes');
+    if (yesLabel) yesLabel.classList.remove('selected-no', 'selected-yes');
+
+    if (medicalYes && medicalYes.checked) {
+        // "Yes" is selected
+        if (medicalDetailsRow) medicalDetailsRow.style.display = 'block';
+        if (medicalDetailsTextarea) medicalDetailsTextarea.required = true;
+        if (yesLabel) yesLabel.classList.add('selected-yes');
+    } else {
+        // "No" is selected
+        if (medicalDetailsRow) medicalDetailsRow.style.display = 'none';
+        if (medicalDetailsTextarea) {
+            medicalDetailsTextarea.required = false;
+            medicalDetailsTextarea.value = '';
+        }
+        if (noLabel) noLabel.classList.add('selected-no');
+    }
+};
+// Enhanced toggleMedicalDetails with color changes
+const toggleMedicalDetails = () => {
+    const medicalYes = document.getElementById('medical-yes');
+    const medicalNo = document.getElementById('medical-no');
+    const medicalDetailsRow = document.getElementById('medical-details-row');
+    const medicalDetailsTextarea = document.getElementById('medical-details');
+
+    // Get the labels
+    const noLabel = medicalNo ? medicalNo.closest('.radio-label') : null;
+    const yesLabel = medicalYes ? medicalYes.closest('.radio-label') : null;
+
+    // Remove previous selection classes
+    if (noLabel) noLabel.classList.remove('selected-no', 'selected-yes');
+    if (yesLabel) yesLabel.classList.remove('selected-no', 'selected-yes');
+
+    if (medicalYes && medicalYes.checked) {
+        // "Yes" is selected
+        if (medicalDetailsRow) medicalDetailsRow.style.display = 'block';
+        if (medicalDetailsTextarea) medicalDetailsTextarea.required = true;
+        if (yesLabel) yesLabel.classList.add('selected-yes');
+    } else {
+        // "No" is selected
+        if (medicalDetailsRow) medicalDetailsRow.style.display = 'none';
+        if (medicalDetailsTextarea) {
+            medicalDetailsTextarea.required = false;
+            medicalDetailsTextarea.value = '';
+        }
+        if (noLabel) noLabel.classList.add('selected-no');
+    }
+};
