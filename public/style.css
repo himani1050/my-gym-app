@@ -531,7 +531,11 @@ body {
     justify-content: center !important;
     cursor: pointer;
     transition: all 0.3s ease;
+<<<<<<< HEAD
     padding-left: -20px !important;
+=======
+    padding-right: -14px !important;
+>>>>>>> 47504bae62b4f7e8a617ec66c6381ff98cacecff
 }
 
 .edit-btn::before,
