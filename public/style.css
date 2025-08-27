@@ -531,7 +531,7 @@ body {
     justify-content: center !important;
     cursor: pointer;
     transition: all 0.3s ease;
-    padding-right: -4px !important;
+    padding-right: -14px !important;
 }
 
 .edit-btn::before,
