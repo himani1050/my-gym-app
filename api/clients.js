@@ -1,5 +1,4 @@
 // api/clients.js
-
 const mongoose = require('mongoose');
 
 // --- Connection caching for Vercel serverless environment ---
@@ -29,6 +28,19 @@ const clientSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     match: /^\d{10}$/
+  },
+  // ✅ ADD THE MISSING AADHAAR FIELD
+  aadhaar: {
+    type: String,
+    required: [true, 'Aadhaar number is required'],
+    unique: true,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{12}$/.test(v);
+      },
+      message: 'Aadhaar number must be exactly 12 digits'
+    }
   },
   height: {
     ft: Number,
@@ -67,9 +79,9 @@ const Client = mongoose.models.Client || mongoose.model('Client', clientSchema);
 // --- Handler ---
 module.exports = async (req, res) => {
   await dbConnect();
+
   switch (req.method) {
     case 'GET':
-      // Get All Clients
       try {
         const clients = await Client.find({});
         res.status(200).json(clients);
@@ -79,27 +91,16 @@ module.exports = async (req, res) => {
       break;
 
     case 'POST':
-      // Create a new Client
       try {
         const {
-          name,
-          contact,
-          aadhaar,
-          heightFt,
-          heightIn,
-          weight,
-          goal,
-          feesSubmitted,
-          feesDue,
-          pt,
-          months,
-          feeDate
+          name, contact, aadhaar, heightFt, heightIn, weight,
+          goal, feesSubmitted, feesDue, pt, months, feeDate
         } = req.body;
 
         const newClient = new Client({
           name,
           contact,
-          aadhaar,
+          aadhaar, // ✅ Now this field exists in schema
           height: { ft: heightFt, in: heightIn },
           weight,
           goal,
@@ -116,36 +117,35 @@ module.exports = async (req, res) => {
         res.status(201).json(client);
       } catch (error) {
         if (error.code === 11000) {
-          res.status(409).json({ message: 'A client with this contact number already exists.' });
+          res.status(409).json({
+            message: 'A client with this contact or Aadhaar number already exists.'
+          });
         } else {
-          res.status(500).json({ message: 'Error creating client.', error: error.message });
+          res.status(500).json({
+            message: 'Error creating client.',
+            error: error.message
+          });
         }
       }
       break;
 
     case 'PUT':
-      // Update an Existing Client
       try {
+        // ✅ Handle both URL parameter and body ID
+        const clientId = req.query.id || req.body.id;
         const {
-          id,
-          name,
-          aadhaar,
-          contact,
-          heightFt,
-          heightIn,
-          weight,
-          goal,
-          feesSubmitted,
-          feesDue,
-          pt,
-          months,
-          feeDate
+          name, contact, aadhaar, heightFt, heightIn, weight,
+          goal, feesSubmitted, feesDue, pt, months, feeDate
         } = req.body;
+
+        if (!clientId) {
+          return res.status(400).json({ message: 'Client ID is required for update.' });
+        }
 
         const updateData = {
           name,
           contact,
-          aadhaar,
+          aadhaar, // ✅ Now this field exists in schema
           height: { ft: heightFt, in: heightIn },
           weight,
           goal,
@@ -159,25 +159,31 @@ module.exports = async (req, res) => {
         };
 
         const updatedClient = await Client.findByIdAndUpdate(
-          id,
+          clientId,
           updateData,
           { new: true, runValidators: true }
         );
+
         if (!updatedClient) {
           return res.status(404).json({ message: 'Client not found.' });
         }
+
         res.status(200).json(updatedClient);
       } catch (error) {
         if (error.code === 11000) {
-          res.status(409).json({ message: 'A client with this contact number already exists.' });
+          res.status(409).json({
+            message: 'A client with this contact or Aadhaar number already exists.'
+          });
         } else {
-          res.status(500).json({ message: 'Error updating client.', error: error.message });
+          res.status(500).json({
+            message: 'Error updating client.',
+            error: error.message
+          });
         }
       }
       break;
 
     case 'DELETE':
-      // Delete a Client by ID (expects id in body)
       try {
         const { id } = req.body;
         const deletedClient = await Client.findByIdAndDelete(id);
