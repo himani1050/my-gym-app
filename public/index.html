@@ -21,7 +21,7 @@
         </header>
 
         <main id="client-list" class="client-list-container">
-            </main>
+        </main>
 
         <button id="add-client-btn" class="fab" title="Add New Client">
             <span class="material-symbols-outlined">add</span>
@@ -40,8 +40,8 @@
                 <input type="hidden" id="client-id">
                 <input type="text" id="name" placeholder="Full Name" required>
                 <input type="tel" id="contact" placeholder="10-Digit Contact Number" required>
-				<input type="text" id="aadhaar" placeholder="12-Digit Aadhaar Number" pattern="\d{12}" maxlength="12" title="Enter exactly 12 digits" required>
-
+                <!-- New: Aadhaar number field -->
+                <input type="tel" id="aadhaar" placeholder="12-Digit Aadhaar Number" pattern="[0-9]{12}" maxlength="12" required>
 
                 <div class="form-group-inline">
                     <input type="number" id="height-ft" placeholder="Height (ft)">
@@ -61,8 +61,8 @@
                 </div>
 
                 <div class="form-group-inline">
-                     <input type="number" id="fees-submitted" placeholder="Fees Submitted (₹)" required>
-                     <input type="number" id="fees-due" placeholder="Fees Due (₹)">
+                    <input type="number" id="fees-submitted" placeholder="Fees Submitted (₹)" required>
+                    <input type="number" id="fees-due" placeholder="Fees Due (₹)" value="0">
                 </div>
 
                 <label>Personal Training</label>
@@ -81,7 +81,7 @@
                 </select>
 
                 <label>Fee Submission Date:</label>
-                <input type="date" id="fee-date" required min="2023-01-01" max="2050-12-31">
+                <input type="date" id="fee-date" required>
                 <p class="end-date-preview">Subscription End: <span id="end-date-display">--/--/----</span></p>
 
                 <button type="submit" class="submit-btn">Save Client</button>
@@ -91,17 +91,14 @@
 
     <div id="details-modal" class="modal-backdrop hidden">
         <div class="modal-content">
-             <div class="modal-header">
+            <div class="modal-header">
                 <h2 id="details-name">Client Details</h2>
                 <button class="close-modal-btn">
                     <span class="material-symbols-outlined">close</span>
                 </button>
-                <button class="delete-btn" title="Remove Client">
-				    <span class="material-symbols-outlined">delete</span>
-				</button>
             </div>
             <div id="details-content" class="details-grid">
-                </div>
+            </div>
         </div>
     </div>
 

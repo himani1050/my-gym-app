@@ -20,9 +20,9 @@ const PORT = process.env.PORT || 5000;
 // 3. Middleware setup
 // Enable CORS for all routes, allowing the frontend to make requests
 const corsOptions = {
-  // Replace with your actual Vercel frontend URL
-  origin: 'https://my-gym-app.vercel.app',
-  optionsSuccessStatus: 200 // For legacy browser support
+    // Replace with your actual Vercel frontend URL
+    origin: 'https://my-gym-app.vercel.app',
+    optionsSuccessStatus: 200 // For legacy browser support
 }
 app.use(cors(corsOptions));
 // Parse incoming JSON requests, making it available on req.body
@@ -31,77 +31,78 @@ app.use(express.json());
 // 4. Connect to MongoDB using Mongoose
 const mongoUri = process.env.MONGO_URI;
 if (!mongoUri) {
-  console.error("MONGO_URI is not defined in the .env file!");
-  process.exit(1);
+    console.error("MONGO_URI is not defined in the .env file!");
+    process.exit(1);
 }
 
 mongoose.connect(mongoUri)
-  .then(() => console.log('✅ MongoDB connected successfully.'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+    .then(() => console.log('✅ MongoDB connected successfully.'))
+    .catch(err => console.error('❌ MongoDB connection error:', err));
 
 
 // 5. Define the Mongoose Schema for a Client
 // This schema maps directly to the data fields from your HTML form.
 const clientSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  contact: {
-    type: String,
-    required: true,
-    unique: true, // Prevents duplicate contact numbers
-    trim: true,
-    match: /^\d{10}$/ // Simple validation for a 10-digit number
-  },
-  aadhaar: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    match: /^\d{12}$/
-  },
-  height: {
-    ft: Number,
-    in: Number
-  },
-  weight: Number,
-  goal: {
-    type: String,
-    enum: ['Gain Weight', 'Lose Weight', 'Maintain Weight', 'Powerlifting', 'Bodybuilding'],
-    required: true
-  },
-  fees: {
-    submitted: {
-      type: Number,
-      required: true
+    name: {
+        type: String,
+        required: true,
+        trim: true
     },
-    due: {
-      type: Number,
-      default: 0
+    contact: {
+        type: String,
+        required: true,
+        unique: true, // Prevents duplicate contact numbers
+        trim: true,
+        match: /^\d{10}$/ // Simple validation for a 10-digit number
+    },
+    // New field for Aadhaar number
+    aadhaar: {
+        type: String,
+        required: true,
+        unique: true, // Ensures each Aadhaar is unique
+        trim: true,
+        match: /^\d{12}$/ // Validation for a 12-digit number
+    },
+    height: {
+        ft: Number,
+        in: Number
+    },
+    weight: Number,
+    goal: {
+        type: String,
+        enum: ['Gain Weight', 'Lose Weight', 'Maintain Weight', 'Powerlifting', 'Bodybuilding'],
+        required: true
+    },
+    fees: {
+        submitted: {
+            type: Number,
+            required: true
+        },
+        due: {
+            type: Number,
+            default: 0
+        }
+    },
+    pt: {
+        type: String,
+        enum: ['None', 'Standard', 'Advanced'],
+        default: 'None'
+    },
+    membership: {
+        months: {
+            type: Number,
+            required: true
+        },
+        feeDate: {
+            type: Date,
+            required: true
+        },
+        // The expiration date can be calculated in the frontend, but storing it here can be useful for queries.
+        // For simplicity, we can also calculate it when a client is saved.
+        endDate: Date
     }
-  },
-  pt: {
-    type: String,
-    enum: ['None', 'Standard', 'Advanced'],
-    default: 'None'
-  },
-  membership: {
-    months: {
-      type: Number,
-      required: true
-    },
-    feeDate: {
-      type: Date,
-      required: true
-    },
-    // The expiration date can be calculated in the frontend, but storing it here can be useful for queries.
-    // For simplicity, we can also calculate it when a client is saved.
-    endDate: Date
-  }
 }, {
-  timestamps: true // Adds createdAt and updatedAt timestamps automatically
+    timestamps: true // Adds createdAt and updatedAt timestamps automatically
 });
 
 // Create a Mongoose Model from the schema
@@ -115,179 +116,195 @@ const router = express.Router();
 // CREATE a new client (POST)
 // ------------------------------------
 router.post('/', async (req, res) => {
-  try {
-    const {
-      name,
-      contact,
-      aadhaar,
-      heightFt,
-      heightIn,
-      weight,
-      goal,
-      feesSubmitted,
-      feesDue,
-      pt,
-      months,
-      feeDate
-    } = req.body;
+    try {
+        const {
+            name,
+            contact,
+            aadhaar, // New: Destructure Aadhaar from the request body
+            heightFt,
+            heightIn,
+            weight,
+            goal,
+            feesSubmitted,
+            feesDue,
+            pt,
+            months,
+            feeDate
+        } = req.body;
 
-    // Create a new client instance
-    const newClient = new Client({
-      name,
-      contact,
-      aadhaar,
-      height: {
-        ft: heightFt,
-        in: heightIn
-      },
-      weight,
-      goal,
-      fees: {
-        submitted: feesSubmitted,
-        due: feesDue
-      },
-      pt,
-      membership: {
-        months,
-        feeDate: new Date(feeDate),
-        // Calculate the membership end date
-        endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
-      }
-    });
+        // Create a new client instance
+        const newClient = new Client({
+            name,
+            contact,
+            aadhaar, // New: Add aadhaar to the new client object
+            height: {
+                ft: heightFt,
+                in: heightIn
+            },
+            weight,
+            goal,
+            fees: {
+                submitted: feesSubmitted,
+                due: feesDue
+            },
+            pt,
+            membership: {
+                months,
+                feeDate: new Date(feeDate),
+                // Calculate the membership end date
+                endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
+            }
+        });
 
-    const client = await newClient.save();
-    res.status(201).json(client); // Send the created client back with a 201 status
-  } catch (error) {
-    if (error.code === 11000) {
-      // 11000 is the error code for duplicate key (e.g., contact number)
-      res.status(409).json({
-        message: 'A client with this contact number already exists.'
-      });
-    } else {
-      res.status(500).json({
-        message: 'Error creating client.',
-        error: error.message
-      });
+        const client = await newClient.save();
+        res.status(201).json(client); // Send the created client back with a 201 status
+    } catch (error) {
+        if (error.code === 11000) {
+            // 11000 is the error code for duplicate key (e.g., contact or aadhaar number)
+            res.status(409).json({
+                message: 'A client with this contact or Aadhaar number already exists.'
+            });
+        } else {
+            res.status(500).json({
+                message: 'Error creating client.',
+                error: error.message
+            });
+        }
     }
-  }
 });
 
 // ------------------------------------
 // READ all clients (GET)
 // ------------------------------------
 router.get('/', async (req, res) => {
-  try {
-    const clients = await Client.find({}); // Find all clients
-    res.status(200).json(clients);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error fetching clients.',
-      error: error.message
-    });
-  }
+    try {
+        const clients = await Client.find({}); // Find all clients
+        res.status(200).json(clients);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error fetching clients.',
+            error: error.message
+        });
+    }
 });
 
 // ------------------------------------
 // READ a single client (GET by ID)
 // ------------------------------------
 router.get('/:id', async (req, res) => {
-  try {
-    const client = await Client.findById(req.params.id);
-    if (!client) {
-      return res.status(404).json({
-        message: 'Client not found.'
-      });
+    try {
+        const client = await Client.findById(req.params.id);
+        if (!client) {
+            return res.status(404).json({
+                message: 'Client not found.'
+            });
+        }
+        res.status(200).json(client);
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error fetching client.',
+            error: error.message
+        });
     }
-    res.status(200).json(client);
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error fetching client.',
-      error: error.message
-    });
-  }
 });
 
 // ------------------------------------
 // UPDATE a client (PUT)
 // ------------------------------------
 router.put('/', async (req, res) => {
-    const {
-        id,
-        name,
-        contact,
-        aadhaar,
-        heightFt,
-        heightIn,
-        weight,
-        goal,
-        feesSubmitted,
-        feesDue,
-        pt,
-        months,
-        feeDate
-    } = req.body;
-
-    const updateData = {
-        name,
-        contact,
-        aadhaar,
-        height: { ft: heightFt, in: heightIn },
-        weight,
-        goal,
-        fees: { submitted: feesSubmitted, due: feesDue },
-        pt,
-        membership: {
+    try {
+        const {
+            id, // ID is now in the body, as per your frontend script
+            name,
+            contact,
+            aadhaar, // New: Destructure Aadhaar for updates
+            heightFt,
+            heightIn,
+            weight,
+            goal,
+            feesSubmitted,
+            feesDue,
+            pt,
             months,
-            feeDate: new Date(feeDate),
-            endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
-        }
-    };
+            feeDate
+        } = req.body;
 
-    const updatedClient = await Client.findByIdAndUpdate(
-        id,
-        updateData, {
-            new: true,
-            runValidators: true
-        }
-    );
+        // Prepare the update object
+        const updateData = {
+            name,
+            contact,
+            aadhaar, // New: Add aadhaar to the update data
+            height: {
+                ft: heightFt,
+                in: heightIn
+            },
+            weight,
+            goal,
+            fees: {
+                submitted: feesSubmitted,
+                due: feesDue
+            },
+            pt,
+            membership: {
+                months,
+                feeDate: new Date(feeDate),
+                endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
+            }
+        };
 
-    res.status(200).json(updatedClient);
-  } catch (error) {
-    if (error.code === 11000) {
-      res.status(409).json({
-        message: 'A client with this contact number already exists.'
-      });
-    } else {
-      res.status(500).json({
-        message: 'Error updating client.',
-        error: error.message
-      });
+        const updatedClient = await Client.findByIdAndUpdate(
+            id,
+            updateData, {
+                new: true,
+                runValidators: true
+            } // `new: true` returns the updated document
+        );
+
+        if (!updatedClient) {
+            return res.status(404).json({
+                message: 'Client not found.'
+            });
+        }
+
+        res.status(200).json(updatedClient);
+    } catch (error) {
+        if (error.code === 11000) {
+            res.status(409).json({
+                message: 'A client with this contact or Aadhaar number already exists.'
+            });
+        } else {
+            res.status(500).json({
+                message: 'Error updating client.',
+                error: error.message
+            });
+        }
     }
-  }
 });
 
 // ------------------------------------
 // DELETE a client (DELETE)
 // ------------------------------------
 router.delete('/', async (req, res) => {
-    const { id } = req.body;
-    const deletedClient = await Client.findByIdAndDelete(id);
+    try {
+        const { id } = req.body; // ID is now in the body
 
-    if (!deletedClient) {
-      return res.status(404).json({
-        message: 'Client not found.'
-      });
+        const deletedClient = await Client.findByIdAndDelete(id);
+
+        if (!deletedClient) {
+            return res.status(404).json({
+                message: 'Client not found.'
+            });
+        }
+
+        res.status(200).json({
+            message: 'Client deleted successfully.'
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Error deleting client.',
+            error: error.message
+        });
     }
-
-    res.status(200).json({
-      message: 'Client deleted successfully.'
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Error deleting client.',
-      error: error.message
-    });
-  }
 });
 
 // Use the router for all API endpoints under the '/api/clients' path
@@ -300,5 +317,5 @@ app.get('/', (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
