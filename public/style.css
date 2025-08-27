@@ -531,7 +531,7 @@ body {
     justify-content: center !important;
     cursor: pointer;
     transition: all 0.3s ease;
-    transform: translateX(5px)!important; 
+    transform: translateX(7px)!important; 
 }
 
 .edit-btn::before,
