@@ -62,19 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // WhatsApp functionality - opens WhatsApp with personalized message
     const openWhatsApp = (contact, name) => {
-        // Remove any non-digit characters and ensure it's a valid Indian number
-        const cleanContact = contact.replace(/\D/g, '');
-        // Add country code if not present (assuming Indian numbers)
-        const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
-        // Create a personalized message
-        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. How can I help you today?`;
-        // Encode the message for URL
-        const encodedMessage = encodeURIComponent(message);
-        // Create WhatsApp URL
-        const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-        // Open WhatsApp in a new tab
-        window.open(whatsappURL, '_blank');
-    };
+	    const cleanContact = contact.replace(/\D/g, '');
+	    const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
+	    const message = `Hi ${name}, this is from MBFC Gym regarding your membership. How can I help you today?`;
+	    const encodedMessage = encodeURIComponent(message);
+
+	    // Try WhatsApp Desktop protocol first
+	    const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
+	    window.location.href = whatsappDesktopURL;
+	};
+
 
     // --- API CALLS ---
     // Fetches all clients from the backend
