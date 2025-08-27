@@ -29,7 +29,7 @@ const clientSchema = new mongoose.Schema({
     trim: true,
     match: /^\d{10}$/
   },
-  // ✅ ADD THE MISSING AADHAAR FIELD
+  // ✅ AADHAAR FIELD
   aadhaar: {
     type: String,
     required: [true, 'Aadhaar number is required'],
@@ -57,6 +57,18 @@ const clientSchema = new mongoose.Schema({
       'Bodybuilding'
     ],
     required: true
+  },
+  // ✅ MEDICAL CONDITION FIELD ADDED
+  medicalCondition: {
+    hasMedicalCondition: {
+      type: Boolean,
+      default: false
+    },
+    conditionDetails: {
+      type: String,
+      trim: true,
+      default: ''
+    }
   },
   fees: {
     submitted: { type: Number, required: true },
@@ -94,16 +106,22 @@ module.exports = async (req, res) => {
       try {
         const {
           name, contact, aadhaar, heightFt, heightIn, weight,
-          goal, feesSubmitted, feesDue, pt, months, feeDate
+          goal, feesSubmitted, feesDue, pt, months, feeDate,
+          hasMedicalCondition, medicalConditionDetails // ✅ ADDED MEDICAL CONDITION FIELDS
         } = req.body;
 
         const newClient = new Client({
           name,
           contact,
-          aadhaar, // ✅ Now this field exists in schema
+          aadhaar,
           height: { ft: heightFt, in: heightIn },
           weight,
           goal,
+          // ✅ MEDICAL CONDITION DATA HANDLING
+          medicalCondition: {
+            hasMedicalCondition: hasMedicalCondition || false,
+            conditionDetails: hasMedicalCondition ? (medicalConditionDetails || '') : ''
+          },
           fees: { submitted: feesSubmitted, due: feesDue },
           pt,
           membership: {
@@ -135,7 +153,8 @@ module.exports = async (req, res) => {
         const clientId = req.query.id || req.body.id;
         const {
           name, contact, aadhaar, heightFt, heightIn, weight,
-          goal, feesSubmitted, feesDue, pt, months, feeDate
+          goal, feesSubmitted, feesDue, pt, months, feeDate,
+          hasMedicalCondition, medicalConditionDetails // ✅ ADDED MEDICAL CONDITION FIELDS
         } = req.body;
 
         if (!clientId) {
@@ -145,10 +164,15 @@ module.exports = async (req, res) => {
         const updateData = {
           name,
           contact,
-          aadhaar, // ✅ Now this field exists in schema
+          aadhaar,
           height: { ft: heightFt, in: heightIn },
           weight,
           goal,
+          // ✅ MEDICAL CONDITION DATA HANDLING
+          medicalCondition: {
+            hasMedicalCondition: hasMedicalCondition || false,
+            conditionDetails: hasMedicalCondition ? (medicalConditionDetails || '') : ''
+          },
           fees: { submitted: feesSubmitted, due: feesDue },
           pt,
           membership: {

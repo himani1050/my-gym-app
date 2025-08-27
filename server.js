@@ -73,6 +73,17 @@ const clientSchema = new mongoose.Schema({
         enum: ['Gain Weight', 'Lose Weight', 'Maintain Weight', 'Powerlifting', 'Bodybuilding'],
         required: true
     },
+    medicalCondition: {
+	    hasMedicalCondition: {
+	      type: Boolean,
+	      default: false
+	    },
+	    conditionDetails: {
+	      type: String,
+	      trim: true,
+	      default: ''
+	    }
+	},
     fees: {
         submitted: {
             type: Number,
@@ -316,3 +327,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+

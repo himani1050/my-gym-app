@@ -1,10 +1,4 @@
 // script.js
-// -----------------------------------------------------------------------------
-// FRONTEND LOGIC - API INTEGRATION
-// This script now communicates with the Node.js backend to perform CRUD operations.
-// It uses the Fetch API to send and receive JSON data.
-// -----------------------------------------------------------------------------
-// URL of your backend server API endpoint
 const API_URL = 'https://my-gym-app.vercel.app/api/clients';
 document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
@@ -21,12 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const feeDateInput = document.getElementById('fee-date');
     const monthsInput = document.getElementById('months');
     const clientIdInput = document.getElementById('client-id');
-    const aadhaarInput = document.getElementById('aadhaar'); // New: Aadhaar input field
+    const aadhaarInput = document.getElementById('aadhaar');
     // Details Modal Elements
     const detailsModal = document.getElementById('details-modal');
     const detailsName = document.getElementById('details-name');
     const detailsContent = document.getElementById('details-content');
     let clients = [];
+
     // --- UTILITY FUNCTIONS ---
     // A simple custom message box to replace alert/confirm
     const showMessage = (message, type = 'info') => {
@@ -38,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageBox.remove();
         }, 3000);
     };
+
     const calculateDaysRemaining = (endDateStr) => {
         const endDate = new Date(endDateStr);
         const today = new Date();
@@ -45,12 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
         endDate.setHours(0, 0, 0, 0);
         return Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
     };
+
     const formatDate = (date) => new Date(date).toLocaleDateString('en-GB');
+
     const calculateEndDate = (startDateStr, months) => {
         const startDate = new Date(startDateStr);
         startDate.setMonth(startDate.getMonth() + months);
         return startDate.toISOString().split('T')[0];
     };
+
     const updateEndDatePreview = () => {
         if (feeDateInput.value && monthsInput.value) {
             const endDate = calculateEndDate(feeDateInput.value, parseInt(monthsInput.value, 10));
@@ -60,18 +59,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // ✅ NEW: Medical condition toggle functionality
+    const toggleMedicalDetails = () => {
+        const medicalYes = document.getElementById('medical-yes');
+        const medicalDetailsRow = document.getElementById('medical-details-row');
+        const medicalDetailsTextarea = document.getElementById('medical-details');
+
+        if (medicalYes && medicalYes.checked) {
+            if (medicalDetailsRow) medicalDetailsRow.style.display = 'block';
+            if (medicalDetailsTextarea) medicalDetailsTextarea.required = true;
+        } else {
+            if (medicalDetailsRow) medicalDetailsRow.style.display = 'none';
+            if (medicalDetailsTextarea) {
+                medicalDetailsTextarea.required = false;
+                medicalDetailsTextarea.value = '';
+            }
+        }
+    };
+
     // WhatsApp functionality - opens WhatsApp with personalized message
     const openWhatsApp = (contact, name) => {
-	    const cleanContact = contact.replace(/\D/g, '');
-	    const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
-	    const message = `Hi ${name}, this is from MBFC Gym regarding your membership. How can I help you today?`;
-	    const encodedMessage = encodeURIComponent(message);
-
-	    // Try WhatsApp Desktop protocol first
-	    const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
-	    window.location.href = whatsappDesktopURL;
-	};
-
+        const cleanContact = contact.replace(/\D/g, '');
+        const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
+        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. How can I help you today?`;
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
+        window.location.href = whatsappDesktopURL;
+    };
 
     // --- API CALLS ---
     // Fetches all clients from the backend
@@ -93,63 +107,72 @@ document.addEventListener('DOMContentLoaded', () => {
             clientCountEl.textContent = 'Error';
         }
     };
-    // Handles form submission for new client or updating an existing one
+
+    // ✅ UPDATED: Handles form submission with medical condition data
     const handleFormSubmit = async (e) => {
-	    e.preventDefault();
-	    const contact = document.getElementById('contact').value;
-	    const feeDate = document.getElementById('fee-date').value;
-	    const aadhaar = document.getElementById('aadhaar').value;
+        e.preventDefault();
+        const contact = document.getElementById('contact').value;
+        const feeDate = document.getElementById('fee-date').value;
+        const aadhaar = document.getElementById('aadhaar').value;
 
-	    if (new Date(feeDate) > new Date()) {
-	        showMessage('Fee submission date cannot be in the future.', 'error');
-	        return;
-	    }
+        if (new Date(feeDate) > new Date()) {
+            showMessage('Fee submission date cannot be in the future.', 'error');
+            return;
+        }
 
-	    const formData = {
-	        name: document.getElementById('name').value,
-	        contact: contact,
-	        aadhaar: aadhaar,
-	        heightFt: parseInt(document.getElementById('height-ft').value, 10),
-	        heightIn: parseInt(document.getElementById('height-in').value, 10),
-	        weight: parseFloat(document.getElementById('weight').value),
-	        goal: document.getElementById('goal').value,
-	        feesSubmitted: parseFloat(document.getElementById('fees-submitted').value),
-	        feesDue: parseFloat(document.getElementById('fees-due').value),
-	        pt: document.querySelector('input[name="pt"]:checked').value,
-	        months: parseInt(document.getElementById('months').value, 10),
-	        feeDate: feeDate,
-	    };
+        // ✅ NEW: Get medical condition data
+        const medicalConditionRadio = document.querySelector('input[name="medical-condition"]:checked');
+        const hasMedicalCondition = medicalConditionRadio ? medicalConditionRadio.value === 'yes' : false;
+        const medicalConditionDetails = hasMedicalCondition ?
+            (document.getElementById('medical-details') ? document.getElementById('medical-details').value : '') : '';
 
-	    const clientId = clientIdInput.value;
-	    let response;
+        const formData = {
+            name: document.getElementById('name').value,
+            contact: contact,
+            aadhaar: aadhaar,
+            heightFt: parseInt(document.getElementById('height-ft').value, 10),
+            heightIn: parseInt(document.getElementById('height-in').value, 10),
+            weight: parseFloat(document.getElementById('weight').value),
+            goal: document.getElementById('goal').value,
+            feesSubmitted: parseFloat(document.getElementById('fees-submitted').value),
+            feesDue: parseFloat(document.getElementById('fees-due').value),
+            pt: document.querySelector('input[name="pt"]:checked').value,
+            months: parseInt(document.getElementById('months').value, 10),
+            feeDate: feeDate,
+            // ✅ NEW: Add medical condition data
+            hasMedicalCondition: hasMedicalCondition,
+            medicalConditionDetails: medicalConditionDetails
+        };
 
-	    if (clientId) {
-	        response = await fetch(API_URL, {
-	            method: 'PUT',
-	            headers: { 'Content-Type': 'application/json' },
-	            body: JSON.stringify({ id: clientId, ...formData })
-	        });
-	    } else {
-	        response = await fetch(API_URL, {
-	            method: 'POST',
-	            headers: { 'Content-Type': 'application/json' },
-	            body: JSON.stringify(formData)
-	        });
-	    }
+        const clientId = clientIdInput.value;
+        let response;
 
-	    if (response.ok) {
-	        showMessage('Client saved successfully!');
-	        closeAllModals();
-	        fetchClients();
-	    } else {
-	        const error = await response.json();
-	        showMessage(`Error: ${error.message}`, 'error');
-	    }
-	};
+        if (clientId) {
+            response = await fetch(API_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: clientId, ...formData })
+            });
+        } else {
+            response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+        }
+
+        if (response.ok) {
+            showMessage('Client saved successfully!');
+            closeAllModals();
+            fetchClients();
+        } else {
+            const error = await response.json();
+            showMessage(`Error: ${error.message}`, 'error');
+        }
+    };
 
     // Deletes a client from the database
     const handleDelete = async (id) => {
-        // Await the async window.confirm
         const confirmed = await window.confirm('Are you sure you want to remove this client?');
         if (!confirmed) return;
         try {
@@ -163,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (clientElement) {
                     clientElement.classList.add('item-remove-animation');
                     clientElement.addEventListener('animationend', () => {
-                        fetchClients(); // Refresh list after animation
+                        fetchClients();
                     });
                 } else {
                     fetchClients();
@@ -177,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Delete error:', error);
         }
     };
+
     // --- CORE RENDERING ---
     const renderClients = () => {
         const searchTerm = searchBar.value.toLowerCase();
@@ -203,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const clientItem = document.createElement('div');
             clientItem.className = 'client-item';
-            clientItem.dataset.id = client._id; // Use MongoDB's unique _id
+            clientItem.dataset.id = client._id;
             clientItem.innerHTML = `
                 <div class="client-item-content">
                     <div class="client-info">
@@ -233,20 +257,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         clientCountEl.textContent = `${filteredClients.length} of ${clients.length} Client${clients.length !== 1 ? 's' : ''}`;
     };
-    // --- DETAILS MODAL LOGIC ---
+
+    // ✅ UPDATED: Details modal now shows medical condition
     const openDetailsModal = (id) => {
         const client = clients.find(c => c._id === id);
         if (!client) {
             showMessage('Client not found.', 'error');
             return;
         }
+
         detailsName.textContent = client.name;
+
+        // ✅ NEW: Handle medical condition display
+        const medicalConditionDisplay = client.medicalCondition && client.medicalCondition.hasMedicalCondition
+            ? client.medicalCondition.conditionDetails || 'Yes (No details provided)'
+            : 'No';
+
         detailsContent.innerHTML = `
             <div class="detail-item"><strong>Contact</strong><span>${client.contact}</span></div>
             <div class="detail-item"><strong>Aadhaar No.</strong><span>${client.aadhaar || 'N/A'}</span></div>
             <div class="detail-item"><strong>Goal</strong><span>${client.goal}</span></div>
             <div class="detail-item"><strong>Height</strong><span>${client.height.ft}'${client.height.in}"</span></div>
             <div class="detail-item"><strong>Weight</strong><span>${client.weight}kg</span></div>
+            <div class="detail-item"><strong>Medical Condition</strong><span>${medicalConditionDisplay}</span></div>
             <div class="detail-item"><strong>Fee Submitted</strong><span>₹${client.fees.submitted.toFixed(2)}</span></div>
             <div class="detail-item"><strong>Fee Due</strong><span>₹${client.fees.due.toFixed(2)}</span></div>
             <div class="detail-item"><strong>Personal Training</strong><span>${client.pt}</span></div>
@@ -256,20 +289,30 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         detailsModal.classList.remove('hidden');
     };
-    // --- FORM MODAL LOGIC ---
+
+    // ✅ UPDATED: Form modal now handles medical condition data
     const openFormModal = (client = null) => {
         clientForm.reset();
         clientIdInput.value = '';
         document.getElementById('pt-none').checked = true;
         document.getElementById('fees-due').value = 0;
+
+        // ✅ NEW: Reset medical condition fields
+        const medicalNo = document.getElementById('medical-no');
+        const medicalDetails = document.getElementById('medical-details');
+        if (medicalNo) medicalNo.checked = true;
+        if (medicalDetails) medicalDetails.value = '';
+        toggleMedicalDetails();
+
         formModalTitle.textContent = 'New Client';
         updateEndDatePreview();
+
         if (client) {
             formModalTitle.textContent = 'Edit Client';
             clientIdInput.value = client._id;
             document.getElementById('name').value = client.name;
             document.getElementById('contact').value = client.contact;
-            document.getElementById('aadhaar').value = client.aadhaar || ''; // New: Populate Aadhaar field for editing
+            document.getElementById('aadhaar').value = client.aadhaar || '';
             document.getElementById('height-ft').value = client.height.ft;
             document.getElementById('height-in').value = client.height.in;
             document.getElementById('weight').value = client.weight;
@@ -279,27 +322,46 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector(`input[name="pt"][value="${client.pt}"]`).checked = true;
             document.getElementById('months').value = client.membership.months;
             document.getElementById('fee-date').value = new Date(client.membership.feeDate).toISOString().split('T')[0];
+
+            // ✅ NEW: Populate medical condition data
+            const medicalYes = document.getElementById('medical-yes');
+            const medicalNo = document.getElementById('medical-no');
+            const medicalDetails = document.getElementById('medical-details');
+
+            if (client.medicalCondition && client.medicalCondition.hasMedicalCondition) {
+                if (medicalYes) medicalYes.checked = true;
+                if (medicalDetails) medicalDetails.value = client.medicalCondition.conditionDetails || '';
+            } else {
+                if (medicalNo) medicalNo.checked = true;
+            }
+            toggleMedicalDetails();
             updateEndDatePreview();
         }
         formModal.classList.remove('hidden');
     };
+
     const closeAllModals = () => {
         formModal.classList.add('hidden');
         detailsModal.classList.add('hidden');
     };
+
     // --- EVENT LISTENERS ---
     addClientBtn.addEventListener('click', () => openFormModal());
     clientForm.addEventListener('submit', handleFormSubmit);
     searchBar.addEventListener('input', renderClients);
 
-    // Use event delegation for dynamic buttons - UPDATED to handle WhatsApp button
+    // ✅ NEW: Medical condition event listeners
+    const medicalYes = document.getElementById('medical-yes');
+    const medicalNo = document.getElementById('medical-no');
+    if (medicalYes) medicalYes.addEventListener('change', toggleMedicalDetails);
+    if (medicalNo) medicalNo.addEventListener('change', toggleMedicalDetails);
+
+    // Use event delegation for dynamic buttons
     clientListContainer.addEventListener('click', (e) => {
         const clientItem = e.target.closest('.client-item');
         if (!clientItem) return;
-
         const clientId = clientItem.dataset.id;
         const client = clients.find(c => c._id === clientId);
-
         if (e.target.closest('.delete-btn')) {
             handleDelete(clientId);
         } else if (e.target.closest('.edit-btn')) {
@@ -307,7 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 openFormModal(client);
             }
         } else if (e.target.closest('.whatsapp-btn')) {
-            // Handle WhatsApp button click - NEW FUNCTIONALITY
             if (client) {
                 openWhatsApp(client.contact, client.name);
             }
@@ -321,11 +382,12 @@ document.addEventListener('DOMContentLoaded', () => {
     detailsModal.addEventListener('click', (e) => e.target === detailsModal && closeAllModals());
     feeDateInput.addEventListener('change', updateEndDatePreview);
     monthsInput.addEventListener('change', updateEndDatePreview);
+
     // --- INITIALIZATION ---
     fetchClients();
 });
 
-// A small utility to replace window.confirm for a better UI experience
+// Enhanced window.confirm with better styling
 window.confirm = (message) => {
     return new Promise((resolve) => {
         const modal = document.createElement('div');
@@ -334,19 +396,42 @@ window.confirm = (message) => {
             <div class="confirm-modal-content">
                 <p>${message}</p>
                 <div class="confirm-actions">
-                    <button class="confirm-btn-yes">Yes</button>
-                    <button class="confirm-btn-no">No</button>
+                    <button class="confirm-btn-no">Cancel</button>
+                    <button class="confirm-btn-yes">Delete</button>
                 </div>
             </div>
         `;
+
         document.body.appendChild(modal);
-        modal.querySelector('.confirm-btn-yes').addEventListener('click', () => {
-            modal.remove();
-            resolve(true);
+
+        // Focus on the cancel button by default for safety
+        setTimeout(() => {
+            modal.querySelector('.confirm-btn-no').focus();
+        }, 100);
+
+        const handleResponse = (result) => {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.remove(), 200);
+            resolve(result);
+        };
+
+        modal.querySelector('.confirm-btn-yes').addEventListener('click', () => handleResponse(true));
+        modal.querySelector('.confirm-btn-no').addEventListener('click', () => handleResponse(false));
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                handleResponse(false);
+            }
         });
-        modal.querySelector('.confirm-btn-no').addEventListener('click', () => {
-            modal.remove();
-            resolve(false);
-        });
+
+        // Close on Escape key
+        const handleKeydown = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', handleKeydown);
+                handleResponse(false);
+            }
+        };
+        document.addEventListener('keydown', handleKeydown);
     });
 };

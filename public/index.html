@@ -60,6 +60,38 @@
                     </select>
                 </div>
 
+                <!-- Add this section after the goal dropdown and before fees section -->
+				<div class="form-row">
+				    <div class="form-group">
+				        <label>Any Medical Condition?</label>
+				        <div class="radio-group">
+				            <label class="radio-label">
+				                <input type="radio" name="medical-condition" value="no" id="medical-no" checked>
+				                <span>No</span>
+				            </label>
+				            <label class="radio-label">
+				                <input type="radio" name="medical-condition" value="yes" id="medical-yes">
+				                <span>Yes</span>
+				            </label>
+				        </div>
+				    </div>
+				</div>
+
+				<!-- Conditional text area for medical condition details -->
+				<div class="form-row" id="medical-details-row" style="display: none;">
+				    <div class="form-group full-width">
+				        <label for="medical-details">Medical Condition Details</label>
+				        <textarea
+				            id="medical-details"
+				            name="medical-details"
+				            placeholder="Please describe the medical condition..."
+				            rows="3"
+				            style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #333; color: #fff; resize: vertical;"
+				        ></textarea>
+				    </div>
+				</div>
+
+
                 <div class="form-group-inline">
                     <input type="number" id="fees-submitted" placeholder="Fees Submitted (₹)" required>
                     <input type="number" id="fees-due" placeholder="Fees Due (₹)" value="0">
