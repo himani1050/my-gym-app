@@ -124,12 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const clientId = clientIdInput.value;
         let response;
         if (clientId) {
-            // Update existing client with id inside body
-            response = await fetch(API_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: clientId, ...formData })
-            });
+		    // Update existing client with id in URL
+		    response = await fetch(`${API_URL}/${clientId}`, {
+		        method: 'PUT',
+		        headers: { 'Content-Type': 'application/json' },
+		        body: JSON.stringify(formData)  // Remove id from body
+		    });
         } else {
             // Create new client
             response = await fetch(API_URL, {
