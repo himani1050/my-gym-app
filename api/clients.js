@@ -1,22 +1,67 @@
 // api/clients.js
 const mongoose = require('mongoose');
 
-// --- Connection caching for Vercel serverless environment ---
+// --- Enhanced Connection caching for Vercel serverless environment ---
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
+// ✅ Enhanced database connection with better error handling and pooling
 async function dbConnect() {
-  if (cached.conn) return cached.conn;
+  console.log(`${new Date().toISOString()} - Database connection attempt`);
+
+  // Check if existing connection is still alive
+  if (cached.conn) {
+    if (cached.conn.readyState === 1) {
+      console.log('Using existing database connection');
+      return cached.conn;
+    } else {
+      console.log('Existing connection is stale, resetting...');
+      cached.conn = null;
+      cached.promise = null;
+    }
+  }
+
   if (!cached.promise) {
-    cached.promise = mongoose.connect(process.env.MONGO_URI, {
+    // ✅ Optimized connection options for Vercel serverless
+    const opts = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    }).then(mongoose => mongoose);
+      maxPoolSize: 2, // ✅ Reduced for serverless - prevents connection overflow
+      minPoolSize: 0, // ✅ Allow closing idle connections
+      maxIdleTimeMS: 30000, // ✅ Close connections after 30 seconds of inactivity
+      serverSelectionTimeoutMS: 10000, // ✅ Fail fast if server unavailable (10 sec)
+      socketTimeoutMS: 45000, // ✅ Close sockets after 45 seconds of inactivity
+      heartbeatFrequencyMS: 10000, // ✅ Check server every 10 seconds
+      bufferMaxEntries: 0, // ✅ Disable mongoose buffering
+      bufferCommands: false, // ✅ Disable mongoose buffering
+      connectTimeoutMS: 10000, // ✅ Give up initial connection after 10 seconds
+    };
+
+    console.log('Creating new database connection...');
+    cached.promise = mongoose.connect(process.env.MONGO_URI, opts)
+      .then(mongoose => {
+        console.log('✅ MongoDB connected successfully');
+        return mongoose;
+      })
+      .catch(error => {
+        console.error('❌ MongoDB connection failed:', error.message);
+        cached.conn = null;
+        cached.promise = null;
+        throw error;
+      });
   }
-  cached.conn = await cached.promise;
-  return cached.conn;
+
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
+  } catch (error) {
+    console.error('Database connection error:', error);
+    cached.conn = null;
+    cached.promise = null;
+    throw error;
+  }
 }
 
 // --- Mongoose Schema and Model ---
@@ -29,7 +74,6 @@ const clientSchema = new mongoose.Schema({
     trim: true,
     match: /^\d{10}$/
   },
-  // ✅ AADHAAR FIELD
   aadhaar: {
     type: String,
     required: [true, 'Aadhaar number is required'],
@@ -58,7 +102,6 @@ const clientSchema = new mongoose.Schema({
     ],
     required: true
   },
-  // ✅ MEDICAL CONDITION FIELD ADDED
   medicalCondition: {
     hasMedicalCondition: {
       type: Boolean,
@@ -88,17 +131,63 @@ const clientSchema = new mongoose.Schema({
 
 const Client = mongoose.models.Client || mongoose.model('Client', clientSchema);
 
-// --- Handler ---
+// ✅ Enhanced error handling wrapper
+const handleDatabaseOperation = async (operation, operationType) => {
+  const startTime = Date.now();
+  try {
+    console.log(`${new Date().toISOString()} - Starting ${operationType} operation`);
+    const result = await operation();
+    const duration = Date.now() - startTime;
+    console.log(`${new Date().toISOString()} - ${operationType} completed successfully in ${duration}ms`);
+    return result;
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    console.error(`${new Date().toISOString()} - ${operationType} failed after ${duration}ms:`, error.message);
+    throw error;
+  }
+};
+
+// --- Enhanced Handler ---
 module.exports = async (req, res) => {
-  await dbConnect();
+  // ✅ Add CORS headers for better browser compatibility
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  console.log(`${new Date().toISOString()} - ${req.method} request received`);
+
+  try {
+    await dbConnect();
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    return res.status(503).json({
+      message: 'Database connection failed. Please try again later.',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 
   switch (req.method) {
     case 'GET':
       try {
-        const clients = await Client.find({});
+        const clients = await handleDatabaseOperation(
+          () => Client.find({}).lean().exec(), // ✅ Added .lean() for better performance
+          'GET_CLIENTS'
+        );
         res.status(200).json(clients);
       } catch (error) {
-        res.status(500).json({ message: 'Error fetching clients.', error: error.message });
+        console.error('GET operation error:', error);
+        res.status(500).json({
+          message: 'Error fetching clients.',
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
       }
       break;
 
@@ -107,41 +196,69 @@ module.exports = async (req, res) => {
         const {
           name, contact, aadhaar, heightFt, heightIn, weight,
           goal, feesSubmitted, feesDue, pt, months, feeDate,
-          hasMedicalCondition, medicalConditionDetails // ✅ ADDED MEDICAL CONDITION FIELDS
+          hasMedicalCondition, medicalConditionDetails
         } = req.body;
 
-        const newClient = new Client({
-          name,
-          contact,
-          aadhaar,
-          height: { ft: heightFt, in: heightIn },
-          weight,
-          goal,
-          // ✅ MEDICAL CONDITION DATA HANDLING
-          medicalCondition: {
-            hasMedicalCondition: hasMedicalCondition || false,
-            conditionDetails: hasMedicalCondition ? (medicalConditionDetails || '') : ''
-          },
-          fees: { submitted: feesSubmitted, due: feesDue },
-          pt,
-          membership: {
-            months,
-            feeDate: new Date(feeDate),
-            endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
-          }
-        });
+        // ✅ Enhanced validation
+        if (!name || !contact || !aadhaar) {
+          return res.status(400).json({
+            message: 'Missing required fields: name, contact, or aadhaar',
+            timestamp: new Date().toISOString()
+          });
+        }
 
-        const client = await newClient.save();
+        const client = await handleDatabaseOperation(
+          async () => {
+            const newClient = new Client({
+              name,
+              contact,
+              aadhaar,
+              height: { ft: heightFt, in: heightIn },
+              weight,
+              goal,
+              medicalCondition: {
+                hasMedicalCondition: hasMedicalCondition || false,
+                conditionDetails: hasMedicalCondition ? (medicalConditionDetails || '') : ''
+              },
+              fees: { submitted: feesSubmitted, due: feesDue },
+              pt,
+              membership: {
+                months,
+                feeDate: new Date(feeDate),
+                endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
+              }
+            });
+            return await newClient.save();
+          },
+          'CREATE_CLIENT'
+        );
+
         res.status(201).json(client);
       } catch (error) {
+        console.error('POST operation error:', error);
+
         if (error.code === 11000) {
+          // ✅ Better duplicate key error handling
+          const duplicateField = Object.keys(error.keyPattern || {})[0] || 'field';
           res.status(409).json({
-            message: 'A client with this contact or Aadhaar number already exists.'
+            message: `A client with this ${duplicateField} already exists.`,
+            field: duplicateField,
+            timestamp: new Date().toISOString()
+          });
+        } else if (error.name === 'ValidationError') {
+          res.status(400).json({
+            message: 'Validation failed',
+            errors: Object.keys(error.errors).map(key => ({
+              field: key,
+              message: error.errors[key].message
+            })),
+            timestamp: new Date().toISOString()
           });
         } else {
           res.status(500).json({
             message: 'Error creating client.',
-            error: error.message
+            error: error.message,
+            timestamp: new Date().toISOString()
           });
         }
       }
@@ -149,59 +266,85 @@ module.exports = async (req, res) => {
 
     case 'PUT':
       try {
-        // ✅ Handle both URL parameter and body ID
         const clientId = req.query.id || req.body.id;
         const {
           name, contact, aadhaar, heightFt, heightIn, weight,
           goal, feesSubmitted, feesDue, pt, months, feeDate,
-          hasMedicalCondition, medicalConditionDetails // ✅ ADDED MEDICAL CONDITION FIELDS
+          hasMedicalCondition, medicalConditionDetails
         } = req.body;
 
         if (!clientId) {
-          return res.status(400).json({ message: 'Client ID is required for update.' });
+          return res.status(400).json({
+            message: 'Client ID is required for update.',
+            timestamp: new Date().toISOString()
+          });
         }
 
-        const updateData = {
-          name,
-          contact,
-          aadhaar,
-          height: { ft: heightFt, in: heightIn },
-          weight,
-          goal,
-          // ✅ MEDICAL CONDITION DATA HANDLING
-          medicalCondition: {
-            hasMedicalCondition: hasMedicalCondition || false,
-            conditionDetails: hasMedicalCondition ? (medicalConditionDetails || '') : ''
+        // ✅ Check if client exists first
+        const existingClient = await Client.findById(clientId).lean();
+        if (!existingClient) {
+          return res.status(404).json({
+            message: 'Client not found.',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        const updatedClient = await handleDatabaseOperation(
+          async () => {
+            const updateData = {
+              name,
+              contact,
+              aadhaar,
+              height: { ft: heightFt, in: heightIn },
+              weight,
+              goal,
+              medicalCondition: {
+                hasMedicalCondition: hasMedicalCondition || false,
+                conditionDetails: hasMedicalCondition ? (medicalConditionDetails || '') : ''
+              },
+              fees: { submitted: feesSubmitted, due: feesDue },
+              pt,
+              membership: {
+                months,
+                feeDate: new Date(feeDate),
+                endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
+              }
+            };
+
+            return await Client.findByIdAndUpdate(
+              clientId,
+              updateData,
+              { new: true, runValidators: true }
+            );
           },
-          fees: { submitted: feesSubmitted, due: feesDue },
-          pt,
-          membership: {
-            months,
-            feeDate: new Date(feeDate),
-            endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
-          }
-        };
-
-        const updatedClient = await Client.findByIdAndUpdate(
-          clientId,
-          updateData,
-          { new: true, runValidators: true }
+          'UPDATE_CLIENT'
         );
-
-        if (!updatedClient) {
-          return res.status(404).json({ message: 'Client not found.' });
-        }
 
         res.status(200).json(updatedClient);
       } catch (error) {
+        console.error('PUT operation error:', error);
+
         if (error.code === 11000) {
+          const duplicateField = Object.keys(error.keyPattern || {})[0] || 'field';
           res.status(409).json({
-            message: 'A client with this contact or Aadhaar number already exists.'
+            message: `Another client with this ${duplicateField} already exists.`,
+            field: duplicateField,
+            timestamp: new Date().toISOString()
+          });
+        } else if (error.name === 'ValidationError') {
+          res.status(400).json({
+            message: 'Validation failed',
+            errors: Object.keys(error.errors).map(key => ({
+              field: key,
+              message: error.errors[key].message
+            })),
+            timestamp: new Date().toISOString()
           });
         } else {
           res.status(500).json({
             message: 'Error updating client.',
-            error: error.message
+            error: error.message,
+            timestamp: new Date().toISOString()
           });
         }
       }
@@ -210,18 +353,50 @@ module.exports = async (req, res) => {
     case 'DELETE':
       try {
         const { id } = req.body;
-        const deletedClient = await Client.findByIdAndDelete(id);
-        if (!deletedClient) {
-          return res.status(404).json({ message: 'Client not found.' });
+
+        if (!id) {
+          return res.status(400).json({
+            message: 'Client ID is required for deletion.',
+            timestamp: new Date().toISOString()
+          });
         }
-        res.status(200).json({ message: 'Client deleted successfully.' });
+
+        const deletedClient = await handleDatabaseOperation(
+          () => Client.findByIdAndDelete(id),
+          'DELETE_CLIENT'
+        );
+
+        if (!deletedClient) {
+          return res.status(404).json({
+            message: 'Client not found.',
+            timestamp: new Date().toISOString()
+          });
+        }
+
+        res.status(200).json({
+          message: 'Client deleted successfully.',
+          deletedClient: {
+            id: deletedClient._id,
+            name: deletedClient.name
+          },
+          timestamp: new Date().toISOString()
+        });
       } catch (error) {
-        res.status(500).json({ message: 'Error deleting client.', error: error.message });
+        console.error('DELETE operation error:', error);
+        res.status(500).json({
+          message: 'Error deleting client.',
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
       }
       break;
 
     default:
-      res.status(405).json({ message: 'Method Not Allowed' });
+      res.status(405).json({
+        message: 'Method Not Allowed',
+        allowedMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+        timestamp: new Date().toISOString()
+      });
       break;
   }
 };
