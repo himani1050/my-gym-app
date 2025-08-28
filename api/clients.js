@@ -1,14 +1,16 @@
 // api/clients.js
 const mongoose = require('mongoose');
+
 // --- Connection caching for Vercel serverless environment ---
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
+
 async function dbConnect() {
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
-    cached.promise = mongoose.connect(process.env.MONGO\_URI, {
+    cached.promise = mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }).then(mongoose => mongoose);
@@ -16,6 +18,7 @@ async function dbConnect() {
   cached.conn = await cached.promise;
   return cached.conn;
 }
+
 // --- Mongoose Schema and Model ---
 const clientSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -24,7 +27,7 @@ const clientSchema = new mongoose.Schema({
     required: true,
     unique: true,
     trim: true,
-    match: /^\\d{10}$/
+    match: /^\d{10}$/
   },
   // ✅ AADHAAR FIELD
   aadhaar: {
@@ -34,7 +37,7 @@ const clientSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(v) {
-        return /^\\d{12}$/.test(v);
+        return /^\d{12}$/.test(v);
       },
       message: 'Aadhaar number must be exactly 12 digits'
     }
@@ -82,10 +85,13 @@ const clientSchema = new mongoose.Schema({
     endDate: Date
   }
 }, { timestamps: true });
+
 const Client = mongoose.models.Client || mongoose.model('Client', clientSchema);
+
 // --- Handler ---
 module.exports = async (req, res) => {
   await dbConnect();
+
   switch (req.method) {
     case 'GET':
       try {
@@ -95,6 +101,7 @@ module.exports = async (req, res) => {
         res.status(500).json({ message: 'Error fetching clients.', error: error.message });
       }
       break;
+
     case 'POST':
       try {
         const {
@@ -102,6 +109,7 @@ module.exports = async (req, res) => {
           goal, feesSubmitted, feesDue, pt, months, feeDate,
           hasMedicalCondition, medicalConditionDetails // ✅ ADDED MEDICAL CONDITION FIELDS
         } = req.body;
+
         const newClient = new Client({
           name,
           contact,
@@ -122,6 +130,7 @@ module.exports = async (req, res) => {
             endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
           }
         });
+
         const client = await newClient.save();
         res.status(201).json(client);
       } catch (error) {
@@ -137,6 +146,7 @@ module.exports = async (req, res) => {
         }
       }
       break;
+
     case 'PUT':
       try {
         // ✅ Handle both URL parameter and body ID
@@ -146,9 +156,11 @@ module.exports = async (req, res) => {
           goal, feesSubmitted, feesDue, pt, months, feeDate,
           hasMedicalCondition, medicalConditionDetails // ✅ ADDED MEDICAL CONDITION FIELDS
         } = req.body;
+
         if (!clientId) {
           return res.status(400).json({ message: 'Client ID is required for update.' });
         }
+
         const updateData = {
           name,
           contact,
@@ -169,14 +181,17 @@ module.exports = async (req, res) => {
             endDate: new Date(new Date(feeDate).setMonth(new Date(feeDate).getMonth() + months))
           }
         };
+
         const updatedClient = await Client.findByIdAndUpdate(
           clientId,
           updateData,
           { new: true, runValidators: true }
         );
+
         if (!updatedClient) {
           return res.status(404).json({ message: 'Client not found.' });
         }
+
         res.status(200).json(updatedClient);
       } catch (error) {
         if (error.code === 11000) {
@@ -191,6 +206,7 @@ module.exports = async (req, res) => {
         }
       }
       break;
+
     case 'DELETE':
       try {
         const { id } = req.body;
@@ -203,6 +219,7 @@ module.exports = async (req, res) => {
         res.status(500).json({ message: 'Error deleting client.', error: error.message });
       }
       break;
+
     default:
       res.status(405).json({ message: 'Method Not Allowed' });
       break;
