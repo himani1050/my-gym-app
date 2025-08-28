@@ -78,10 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // WhatsApp functionality - opens WhatsApp with personalized message
-    const openWhatsApp = (contact, name) => {
+    const openWhatsApp = (contact, name, client.membership.endDate) => {
         const cleanContact = contact.replace(/\D/g, '');
         const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
-        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. How can I help you today?`;
+        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. Your fees is due on ${client.membership.endDate}`;
         const encodedMessage = encodeURIComponent(message);
         const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
         window.location.href = whatsappDesktopURL;
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (e.target.closest('.whatsapp-btn')) {
             if (client) {
-                openWhatsApp(client.contact, client.name);
+                openWhatsApp(client.contact, client.name, client.membership.endDate);
             }
         } else {
             openDetailsModal(clientId);
