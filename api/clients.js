@@ -11,32 +11,25 @@ if (!cached) {
 async function dbConnect() {
   console.log(`${new Date().toISOString()} - Database connection attempt`);
 
-  // Check if existing connection is still alive
-  if (cached.conn) {
-    if (cached.conn.readyState === 1) {
-      console.log('Using existing database connection');
-      return cached.conn;
-    } else {
-      console.log('Existing connection is stale, resetting...');
-      cached.conn = null;
-      cached.promise = null;
-    }
+  if (cached.conn && cached.conn.readyState === 1) {
+    console.log('Using existing database connection');
+    return cached.conn;
   }
 
   if (!cached.promise) {
-    // ✅ Optimized connection options for Vercel serverless
+    // ✅ FIXED: Less aggressive connection options for Vercel
     const opts = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      maxPoolSize: 2, // ✅ Reduced for serverless - prevents connection overflow
-      minPoolSize: 0, // ✅ Allow closing idle connections
-      maxIdleTimeMS: 30000, // ✅ Close connections after 30 seconds of inactivity
-      serverSelectionTimeoutMS: 10000, // ✅ Fail fast if server unavailable (10 sec)
-      socketTimeoutMS: 45000, // ✅ Close sockets after 45 seconds of inactivity
-      heartbeatFrequencyMS: 10000, // ✅ Check server every 10 seconds
-      bufferMaxEntries: 0, // ✅ Disable mongoose buffering
-      bufferCommands: false, // ✅ Disable mongoose buffering
-      connectTimeoutMS: 10000, // ✅ Give up initial connection after 10 seconds
+      maxPoolSize: 10,        // ✅ Increased from 2 to 10
+      minPoolSize: 1,         // ✅ Maintain minimum connections
+      maxIdleTimeMS: 30000,   // ✅ Keep existing
+      serverSelectionTimeoutMS: 15000, // ✅ Increased from 10 to 15 seconds
+      socketTimeoutMS: 45000, // ✅ Keep existing
+      connectTimeoutMS: 15000, // ✅ Increased from 10 to 15 seconds
+      heartbeatFrequencyMS: 10000,
+      bufferMaxEntries: 0,
+      bufferCommands: false,
     };
 
     console.log('Creating new database connection...');
