@@ -81,7 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const openWhatsApp = (contact, name, client.membership.endDate) => {
         const cleanContact = contact.replace(/\D/g, '');
         const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
-        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. Your fees is due on ${client.membership.endDate}`;
+        const formattedEndDate = new Date(endDate).toLocaleDateString('en-GB');
+        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. Your membership expires on ${formattedEndDate}`;
         const encodedMessage = encodeURIComponent(message);
         const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
         window.location.href = whatsappDesktopURL;
