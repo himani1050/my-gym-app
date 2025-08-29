@@ -550,3 +550,57 @@ body {
     filter: none;
     display: block;
 }
+
+/* Fix icon shifting when due amount appears */
+.membership-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 200px; /* Reserve space for widest content */
+  gap: 10px; /* Consistent spacing between elements */
+}
+
+.membership-status > * {
+  flex-shrink: 0; /* Prevent icons from shrinking */
+}
+
+.status-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1; /* Take available space */
+}
+
+.fee-due-badge {
+  background-color: #fbbf24; /* Yellow background */
+  color: #000;
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  min-width: 70px; /* Reserve minimum space */
+  text-align: center;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.days-remaining {
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  min-width: 60px; /* Reserve minimum space */
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Ensure all buttons have consistent size */
+.whatsapp-btn,
+.edit-btn,
+.delete-btn {
+  width: 40px !important;
+  height: 40px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Don't let buttons shrink */
+}
