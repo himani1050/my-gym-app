@@ -551,28 +551,46 @@ body {
     display: block;
 }
 
-/* Fix: Keep icons at extreme right regardless of badges */
+/* Force icons to extreme right corner */
 .membership-status {
+    position: relative;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
-    min-width: 250px; /* Reserve enough space for all content */
-    width: 100%; /* Take full available width */
-}
-
-.membership-status > * {
-    flex-shrink: 0; /* Prevent any element from shrinking */
+    width: 100%;
+    min-height: 60px;
 }
 
 .status-badges {
     display: flex;
     gap: 8px;
     align-items: center;
-    margin-right: auto; /* Push badges to the left */
 }
 
-/* Ensure consistent badge sizing */
+/* Create a dedicated container for action buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Ensure consistent button sizing */
+.whatsapp-btn,
+.edit-btn,
+.delete-btn {
+    width: 40px !important;
+    height: 40px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Badge styling to prevent layout shifts */
 .fee-due-badge {
     background-color: #fbbf24;
     color: #000;
@@ -595,28 +613,7 @@ body {
     white-space: nowrap;
 }
 
-/* Fix icon button sizes */
-.whatsapp-btn,
-.edit-btn,
-.delete-btn {
-    width: 40px !important;
-    height: 40px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-left: 0 !important; /* Remove any left margins */
-}
-
-/* Ensure buttons stay together on the right */
-.membership-status .whatsapp-btn {
-    order: 1;
-}
-
-.membership-status .edit-btn {
-    order: 2;
-}
-
-.membership-status .delete-btn {
-    order: 3;
+.days-remaining.overdue {
+    background-color: #dc2626;
+    color: white;
 }
