@@ -79,14 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // WhatsApp functionality - opens WhatsApp with personalized message
     const openWhatsApp = (contact, name, endDate) => {
-        const cleanContact = contact.replace(/\D/g, '');
-        const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
-        const formattedEndDate = new Date(endDate).toLocaleDateString('en-GB');
-        const message = `Hi ${name}, this is from MBFC Gym regarding your membership. Your membership expires on ${formattedEndDate}`;
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
-        window.location.href = whatsappDesktopURL;
-    };
+	    const cleanContact = contact.replace(/\D/g, '');
+	    const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
+	    const formattedEndDate = new Date(endDate).toLocaleDateString('en-GB');
+	    const message = `Hi ${name}, this is from MBFC Gym regarding your membership. Your membership expires on ${formattedEndDate}`;
+	    const encodedMessage = encodeURIComponent(message);
+	    const whatsappDesktopURL = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
+	    window.location.href = whatsappDesktopURL;
+	};
+
 
     // --- API CALLS ---
     // Fetches all clients from the backend
