@@ -556,7 +556,7 @@ body {
     position: relative;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: right;
     width: 100%;
     min-height: 60px;
 }
@@ -564,14 +564,14 @@ body {
 .status-badges {
     display: flex;
     gap: 8px;
-    align-items: center;
+    align-items: right;
 }
 
 /* Create a dedicated container for action buttons */
 .action-buttons {
     display: flex;
     gap: 8px;
-    align-items: center;
+    align-items: right;
     position: absolute;
     right: 0;
     top: 50%;
@@ -585,8 +585,8 @@ body {
     width: 40px !important;
     height: 40px !important;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: right;
+    justify-content: right;
     flex-shrink: 0;
 }
 
@@ -609,7 +609,7 @@ body {
     font-weight: 600;
     font-size: 12px;
     min-width: 70px;
-    text-align: center;
+    text-align: right;
     white-space: nowrap;
 }
 
