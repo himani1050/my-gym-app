@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // WhatsApp functionality - opens WhatsApp with personalized message
-    const openWhatsApp = (contact, name, client.membership.endDate) => {
+    const openWhatsApp = (contact, name, endDate) => {
         const cleanContact = contact.replace(/\D/g, '');
         const phoneNumber = cleanContact.startsWith('91') ? cleanContact : `91${cleanContact}`;
         const formattedEndDate = new Date(endDate).toLocaleDateString('en-GB');
